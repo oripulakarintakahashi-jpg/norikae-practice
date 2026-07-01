@@ -1,0 +1,2731 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>乗り換え提案 練習サイト</title>
+<style>
+:root{
+  --ink:#1a1d21;--ink2:#5a6068;--ink3:#9298a0;
+  --bg:#f7f7f5;--surface:#ffffff;--line:#e4e4e0;
+  --sb:#0071c5;--sb-light:#e8f3fc;--ym:#e53935;
+  --ok:#1d9e75;--ng:#d85a30;--warn:#ba7517;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Hiragino Sans","Yu Gothic UI","Meiryo",sans-serif;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.6}
+.topbar{display:flex;align-items:center;gap:10px;padding:14px 20px;background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10}
+.badge{font-size:11px;font-weight:600;padding:3px 8px;border-radius:4px;color:#fff}
+.b-ym{background:var(--ym)}.b-sb{background:var(--sb)}
+.topbar h1{font-size:16px;font-weight:600;flex:1}
+.topbar .note{font-size:12px;color:var(--ink3)}
+.layout{display:flex;min-height:calc(100vh - 57px)}
+.sidebar{width:300px;min-width:300px;background:var(--surface);border-right:1px solid var(--line);padding:14px 10px;overflow-y:auto;max-height:calc(100vh - 57px);position:sticky;top:57px}
+.sec-label{font-size:11px;font-weight:600;color:var(--ink3);letter-spacing:.06em;padding:6px 10px 4px}
+.cbtn{display:block;width:100%;text-align:left;background:transparent;border:none;border-left:3px solid transparent;border-radius:0 8px 8px 0;padding:10px 12px;cursor:pointer;font-size:13px;color:var(--ink2);line-height:1.45;margin-bottom:2px;font-family:inherit}
+.cbtn:hover{background:var(--bg)}
+.cbtn.on{background:var(--sb-light);color:var(--ink);font-weight:600;border-left-color:var(--sb)}
+.cbtn small{display:block;font-size:11px;font-weight:400;color:var(--ink3)}
+.cbtn .done{color:var(--ok);font-size:11px;font-weight:600}
+.saku{margin:4px 8px 8px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:12px;line-height:1.6;color:var(--ink2)}
+.saku b{color:var(--ink);font-weight:600}
+.main{flex:1;padding:22px 26px;overflow-y:auto;max-width:1150px}
+.case-title{font-size:18px;font-weight:600;margin-bottom:16px}
+h2.sec{font-size:13px;font-weight:600;color:var(--ink2);margin:0 0 10px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;margin-bottom:18px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px}
+.tag{font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;display:inline-block;margin-bottom:7px}
+.t-docomo{background:#e8f0fe;color:#1a56db}
+.t-au{background:#fff3cd;color:#92400e}
+.t-sb{background:#dbeafe;color:#1d4ed8}
+.t-rakuten{background:#fce7f3;color:#9d174d}
+.t-uq{background:#d1fae5;color:#065f46}
+.t-iij{background:#ede9fe;color:#5b21b6}
+.t-net{background:#f1f5f9;color:#475569}
+.who{font-size:13px;font-weight:600;margin-bottom:7px}
+.row{display:flex;justify-content:space-between;gap:6px;font-size:12px;margin-bottom:3px}
+.rk{color:var(--ink3);flex-shrink:0}
+.rv{font-weight:500;text-align:right}
+.sub{font-size:11px;color:var(--ink3);margin-top:6px;line-height:1.45;border-top:1px dashed var(--line);padding-top:6px}
+.inforow{display:flex;gap:12px;margin-bottom:18px;flex-wrap:wrap}
+.sbox{flex:1;min-width:220px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px}
+.sbox.warn{border-left:3px solid var(--warn)}
+.stitle{font-size:12px;font-weight:600;margin-bottom:7px}
+.sbody{font-size:13px;color:var(--ink2);line-height:1.7}
+.agrid{display:grid;grid-template-columns:1fr;gap:5px}
+.aitem{font-size:12px;display:flex;align-items:center;gap:6px;color:var(--ink2)}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.d-ok{background:var(--ok)}.d-ng{background:var(--ng)}.d-q{background:var(--warn)}
+/* ===== 回答フォーム ===== */
+.azone{background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:18px}
+.ahead{padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--bg);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.ahtitle{font-size:13px;font-weight:600}
+.btns{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.savestat{font-size:11px;color:var(--ink3)}
+.savestat.ok{color:var(--ok)}
+button.act{font-family:inherit;background:var(--sb);color:#fff;border:none;border-radius:7px;padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer}
+button.act:hover{background:#005a9e}
+button.ghost{font-family:inherit;background:transparent;color:var(--ink2);border:1px solid var(--line);border-radius:7px;padding:8px 14px;font-size:13px;cursor:pointer}
+button.ghost:hover{background:var(--bg)}
+button:disabled{opacity:.5;cursor:not-allowed}
+.formgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.fblock{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px}
+.fblock-title{font-size:12px;font-weight:600;margin-bottom:9px;color:var(--sb)}
+.fl{font-size:11px;color:var(--ink2);margin:7px 0 3px;font-weight:500}
+.fl:first-of-type{margin-top:0}
+select,input[type=number],input[type=text]{width:100%;border:1px solid var(--line);border-radius:6px;padding:7px 8px;font-size:12px;font-family:inherit;background:var(--surface);color:var(--ink)}
+select:focus,input:focus,textarea:focus{outline:none;border-color:var(--sb);box-shadow:0 0 0 2px rgba(0,113,197,.12)}
+.yen{display:flex;align-items:center;gap:4px}
+.yen span{font-size:11px;color:var(--ink3)}
+.reasonarea{padding:14px 16px;border-bottom:1px solid var(--line)}
+.memlabel{font-size:12px;color:var(--ink2);margin-bottom:6px;font-weight:500}
+textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:11px;font-size:13px;font-family:inherit;resize:vertical;min-height:80px;background:var(--surface);color:var(--ink);line-height:1.6}
+/* ===== 解答 ===== */
+.ansarea{padding:14px 16px;border-bottom:1px solid var(--line)}
+.anslabel{font-size:12px;font-weight:600;color:var(--ok);margin-bottom:10px}
+.ansbody,.aibody{font-size:13px;line-height:1.75}
+.ansbody table,.aibody table{width:100%;border-collapse:collapse;margin:10px 0;font-size:12px}
+.ansbody th,.aibody th{background:var(--bg);padding:7px 9px;text-align:left;font-weight:600;border:1px solid var(--line)}
+.ansbody td,.aibody td{padding:7px 9px;border:1px solid var(--line);vertical-align:top}
+.ansbody h3,.aibody h3{font-size:14px;font-weight:600;margin:16px 0 6px;padding-left:8px;border-left:3px solid var(--sb)}
+.ansbody h3:first-child{margin-top:0}
+.ansbody ul,.aibody ul{padding-left:20px;margin:6px 0}
+.ansbody li,.aibody li{margin-bottom:3px}
+.reason-box{background:#f0f7f1;border:1px solid #cfe5d2;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:13px}
+.reason-box b{display:block;margin-bottom:5px;color:var(--ok)}
+.point{background:var(--sb-light);border-radius:8px;padding:11px 14px;margin-top:12px;font-size:12px}
+.point b{display:block;margin-bottom:4px}
+.caution{font-size:11px;color:var(--ink3);margin-top:10px;padding-top:8px;border-top:1px dashed var(--line)}
+.loading{display:flex;align-items:center;gap:8px;color:var(--ink2);padding:10px 0;font-size:13px}
+.dots{display:inline-flex;gap:4px}
+.dots span{width:6px;height:6px;border-radius:50%;background:var(--sb);animation:bk 1.2s infinite}
+.dots span:nth-child(2){animation-delay:.2s}
+.dots span:nth-child(3){animation-delay:.4s}
+@keyframes bk{0%,80%,100%{opacity:.2}40%{opacity:1}}
+.hint{font-size:12px;color:var(--ink3);text-align:center;padding:4px 0 30px}
+.err{color:var(--ng);font-size:13px}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.modal-overlay.open{display:flex;align-items:flex-start;justify-content:center;padding:20px 12px}
+.modal-box{background:var(--surface);border-radius:14px;width:100%;max-width:860px;margin:auto;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.25)}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--line);background:var(--bg)}
+.modal-head h2{font-size:15px;font-weight:600}
+.modal-tabs{display:flex;gap:4px;overflow-x:auto;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--bg)}
+.modal-tab{flex-shrink:0;font-family:inherit;font-size:12px;padding:5px 11px;border:1px solid var(--line);border-radius:16px;background:var(--surface);cursor:pointer;color:var(--ink2)}
+.modal-tab.on{background:var(--sb);color:#fff;border-color:var(--sb)}
+.modal-body{padding:16px}
+.edit-label{font-size:12px;font-weight:600;color:var(--ink2);margin:14px 0 5px}
+.edit-label:first-child{margin-top:0}
+.edit-ta{width:100%;min-height:130px;border:1px solid var(--line);border-radius:8px;padding:11px;font-size:13px;font-family:inherit;resize:vertical;background:var(--surface);color:var(--ink);line-height:1.6}
+.edit-ta:focus{outline:none;border-color:var(--sb);box-shadow:0 0 0 3px rgba(0,113,197,.1)}
+.modal-foot{display:flex;justify-content:flex-end;align-items:center;gap:8px;flex-wrap:wrap;padding:12px 16px;border-top:1px solid var(--line);background:var(--bg)}
+.edit-stat{font-size:12px;color:var(--ink3);flex:1}
+.edit-stat.custom{color:var(--warn);font-weight:600}
+.edit-section{border-top:1px solid var(--line);margin-top:14px;padding-top:14px}
+.edit-section-title{font-size:13px;font-weight:600;margin-bottom:10px;color:var(--sb)}
+.edit-phone-block{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px;margin-bottom:8px}
+.edit-row{display:flex;gap:8px;margin-bottom:6px;flex-wrap:wrap}
+.edit-row label{font-size:11px;color:var(--ink2);display:block;margin-bottom:3px}
+.edit-row .ef{flex:1;min-width:110px}
+.edit-row input{width:100%;border:1px solid var(--line);border-radius:6px;padding:6px 8px;font-size:12px;font-family:inherit}
+.edit-area-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12px}
+.edit-area-row input[type=text]{flex:1;border:1px solid var(--line);border-radius:6px;padding:5px 8px;font-size:12px}
+.edit-area-row select{border:1px solid var(--line);border-radius:6px;padding:5px 8px;font-size:12px}
+.edit-quiz-block{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px;margin-bottom:8px}
+.edit-quiz-block textarea{width:100%;border:1px solid var(--line);border-radius:6px;padding:7px;font-size:12px;font-family:inherit;min-height:50px}
+.btn-tiny{font-family:inherit;font-size:11px;padding:4px 9px;border:1px solid var(--line);border-radius:6px;background:var(--surface);cursor:pointer;color:var(--ink2)}
+.btn-tiny:hover{background:var(--bg)}
+.btn-tiny.danger{color:var(--ng);border-color:var(--ng)}
+.report-case{border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:16px}
+.report-case h3{font-size:14px;margin-bottom:10px;padding-left:8px;border-left:3px solid var(--sb)}
+.report-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:10px}
+.report-table th,.report-table td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+.report-table th{background:var(--bg);white-space:nowrap}
+.empty{color:var(--ink3);font-style:italic}
+.fb-ok{color:var(--ok);font-weight:600}
+.fb-ng{color:var(--ng);font-weight:600}
+.report-reason{font-size:12px;background:var(--bg);border-radius:8px;padding:10px;margin-bottom:8px;line-height:1.6;white-space:pre-wrap}
+.report-quiz{font-size:12px}
+.report-quiz ul{padding-left:18px;margin:6px 0}
+.report-quiz li{margin-bottom:4px;line-height:1.5}
+.report-summary{background:var(--sb-light);border-radius:10px;padding:14px;margin-bottom:16px}
+.report-summary h2{font-size:15px;margin-bottom:8px}
+.report-summary table{width:100%;font-size:12px;border-collapse:collapse}
+.report-summary td{padding:4px 8px}
+.report-empty{color:var(--ink3);text-align:center;padding:40px 0;font-size:13px}
+@media print{
+  body *:not(#reportModal):not(#reportModal *){display:none !important}
+  #reportModal{display:block !important;position:static !important;background:none !important;padding:0 !important}
+  #reportModal .modal-box{box-shadow:none !important;max-width:100% !important;border-radius:0 !important}
+  #reportModal .modal-head,#reportModal .modal-foot{display:none !important}
+  .report-case{break-inside:avoid}
+}
+.qitem{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-bottom:8px}
+.qtext{font-size:13px;margin-bottom:7px;line-height:1.55}
+.qbtns{display:flex;gap:8px}
+.qbtn{font-family:inherit;width:44px;height:36px;border:1px solid var(--line);border-radius:8px;background:var(--surface);font-size:16px;cursor:pointer;color:var(--ink2)}
+.qbtn:hover{border-color:var(--sb)}
+.qbtn.qsel{background:var(--sb);color:#fff;border-color:var(--sb)}
+.qres{font-size:12px;margin-top:7px;line-height:1.55;padding:7px 10px;border-radius:6px}
+.qok{background:#e8f5ec;color:var(--ok)}
+.qng{background:#fdeeea;color:var(--ng)}
+.ansbody{overflow-x:auto}
+@media(max-width:760px){
+  .layout{flex-direction:column}
+  .topbar{padding:10px 14px;position:static}
+  .topbar h1{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .topbar .note{display:none}
+  .sidebar{width:100%;min-width:0;border-right:none;border-bottom:1px solid var(--line);display:flex;overflow-x:auto;padding:8px;position:static;max-height:none}
+  .sidebar .sec-label,.sidebar .saku{display:none}
+  .cbtn{white-space:nowrap;border-left:none;border-bottom:3px solid transparent;border-radius:8px 8px 0 0}
+  .cbtn.on{border-left:none;border-bottom-color:var(--sb)}
+  .main{padding:14px}
+  .formgrid{grid-template-columns:1fr}
+  select,input[type=number],input[type=text],textarea{font-size:16px;padding:10px}
+  button.act,button.ghost{padding:10px 16px;font-size:14px}
+  .qbtn{width:52px;height:44px}
+  .ansbody table{min-width:540px}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="badge b-ym">YM</span><span class="badge b-sb">SB</span>
+  <h1>乗り換え提案 練習サイト</h1>
+  <span class="note" style="white-space:nowrap">2026年6月施策反映</span>
+  <button class="ghost" style="font-size:12px;padding:5px 10px;white-space:nowrap" onclick="openEditor()">✏️ 解答編集</button>
+  <button class="ghost" style="font-size:12px;padding:5px 10px;white-space:nowrap" onclick="openReport()">📋 回答まとめ</button>
+</div>
+
+<div class="layout">
+  <nav class="sidebar" id="sidebar"></nav>
+  <main class="main" id="main"></main>
+</div>
+
+<script>
+var cur = -1;
+var showAns = {};
+var memCache = {};      // ストレージ不可時のフォールバック
+var saveTimer = null;
+var storageOK = (typeof window.storage === 'object' && window.storage && typeof window.storage.set === 'function');
+
+var PLAN_OPTS = ['（未選択）','変更なし・持ち込み','YM シンプル3 S（5GB）','YM シンプル3 M（30GB）','YM シンプル3 L（35GB）','SB ペイトク2（無制限）','SB テイガク無制限','SB ミニフィット2（〜2GB）','SB ミニフィット2（〜5GB）','SB スマホデビュープラン＋ ライト（4GB）','SB スマホデビュープラン＋ ベーシック（20GB）','その他（施策欄に記入）'];
+var CALL_OPTS = ['（通話なし）','5分かけ放題','10分かけ放題','24時間かけ放題'];
+var CARD_OPTS = ['（未選択）','つけない','PayPayカード ノーマル','PayPayカード ゴールド'];
+var NET_OPTS  = ['（未選択）','変更なし','SoftBank光 1ギガ（マンション）','SoftBank光 1ギガ（戸建て）','SoftBank光 10ギガ','SoftBank Air','その他'];
+var KOUJI_OPTS = ['（未選択）','工事あり','工事なし','工事不要（Air）'];
+var KOUJITYPE_OPTS = ['（未選択）','事業者変更（事変）','転用'];
+var HOTEN_OPTS = ['（未選択）','補填あり（あんしん乗り換え等）','補填なし','対象外（違約金・残債なし）'];
+var NETSAKU_OPTS = ['（未選択）','KD20','KD30','その他','なし'];
+var HOW_OPTS  = ['（未選択）','事業者変更（事変）','解約新規','新規','転用','変更なし'];
+
+
+/* ============ 解答データ（構造化形式） ============ */
+// 各ケースの解答はパターンの配列。パターンは {title, reason, phones:[{who,plan,min,disc,saku}], net:{plan,fee,how,saku}, points} の構造
+// phones配列はCASES[i].phonesと同順。フォームから編集可能。
+
+var ANS_DATA = [
+
+/* ==============================
+   ケース1｜ドコモ家族3人
+   前提：NURO光維持（固定電話込→おうち割光セット対象）
+         子は返却P 12か月目→SIMのみ一択（24か月支払い必須）
+         父iPhone14 3年前Apple一括・バッテリー78%
+   ============================== */
+{patterns:[
+  {
+    title:"パターンA：父・母も端末ごと乗り換え（1円端末＋おうち割フル活用）",
+    reason:"NURO光は固定電話（NURO光でんわ）込みのためおうち割光セット対象。おうち割セット割（▲1,650円）が父・母・子の各回線につく。子は返却P 12か月目のためSIMのみ一択。父はバッテリー78%で劣化目安を超えており端末更新を訴求。",
+    phones:[
+      {who:"父（50代）",plan:"YM シンプル3 S（5GB）",min:"1,298円",disc:"おうち割光セット(A)▲1,650円＋PayPayカード割▲330円",saku:"iPhone16e 1円/月×24（MNP・特典利用料なし）"},
+      {who:"母（50代）",plan:"YM シンプル3 S（5GB）",min:"1,298円",disc:"おうち割光セット(A)▲1,650円＋PayPayカード割▲330円",saku:"AQUOS wish5 一括1円（MNP）or 持ち込み（sense4は2020年キャリア購入→SIMロック解除確認）"},
+      {who:"子（17歳）",plan:"YM シンプル3 M（30GB）",min:"2,398円",disc:"おうち割光セット(A)▲1,650円＋PayPayカード割▲330円",saku:"SIMのみ一択。おうち割施策▲16,500円＋PayPay15,000pt（M/L対象・1使用者1還元）。データ増量OP不要（おうち割施策はM/L契約でOK）"}
+    ],
+    net:{plan:"NURO光 維持＋おうち割光セット申込",fee:"6,600円（変更なし）",how:"変更なし",saku:"PayPayは申込月起算3か月目末日付与。セット割▲1,650円は3回線すべてに各1つ適用"},
+    points:"・子＝SIMのみ一択（返却P12か月目・返却しても残債は消えない・24か月支払い必須）\n・NURO光は固定電話込みのためおうち割光セット対象→回線を動かさず家族全員に月額セット割\n・おうち割と家族割は併用不可→おうち割優先が正解\n・dカードシルバー利用中→PayPayカード新規発行を提案（▲330円/月・ゴールドなら▲550円）\n・父のバッテリー78%は劣化目安（80%以下）→端末更新の訴求機会"
+  },
+  {
+    title:"パターンB：全員SIMのみ＋CB最大化（端末は持ち込み）",
+    reason:"端末を一切動かさずMNP施策のCBを最大化するパターン。父・母はSIM単体MNP。子もSIMのみ（返却P12か月目のため端末乗り換え不可）。着地SでもSIM単体MNP施策のため入り口はM/Lで契約し翌日以降Sへ変更案内。",
+    phones:[
+      {who:"父（50代）",plan:"YM シンプル3 S（5GB）",min:"1,848円（増量OP 550円込）",disc:"おうち割光セット(A)▲1,650円＋カード割▲330円",saku:"SIM単体MNP：20,000pt or ▲22,000円（データ増量OP必須）。着地SでもM/Lで入って翌日Sへ変更案内"},
+      {who:"母（50代）",plan:"YM シンプル3 S（5GB）",min:"1,848円（増量OP 550円込）",disc:"おうち割光セット(A)▲1,650円＋カード割▲330円",saku:"SIM単体MNP：20,000pt（同名義2回線目も適用可）"},
+      {who:"子（17歳）",plan:"YM シンプル3 M（30GB）",min:"2,398円",disc:"おうち割光セット(A)▲1,650円＋カード割▲330円",saku:"おうち割施策▲16,500円＋PayPay15,000pt（M/L対象）または SIM単体MNP 20,000ptの大きい方を選択"}
+    ],
+    net:{plan:"NURO光 維持＋おうち割光セット申込",fee:"6,600円（変更なし）",how:"変更なし",saku:"—"},
+    points:"・3回線で最大60,000pt（▲66,000円相当）＋おうち割で月額も削減\n・父のバッテリー78%は正直に伝えてSIM継続の判断を仰ぐ\n・SIM単体MNPはデータ増量OP（550円/月）が条件→着地SでもM/Lで入って翌日Sへ変更案内（施策条件を守りつつ最安着地）\n・子のiPhone15はApple直販ならSIMフリー。sense4は2020年キャリア購入→SIMロック解除確認"
+  }
+]},
+
+/* ==============================
+   ケース2｜au＋auひかり
+   前提：父子は返却P 22か月目→返却＋新端末の一択（残り2回分支払い発生）
+         母：Xperia一括→持ち込み可。通話かけ放題継続希望。@ezweb.com使用で乗り換え抵抗あり
+         父：Netflixパック2(P)のNetflix・Amazonプライムが最重要関心
+         auひかり違約金・残債20,625円→あんしん乗り換え（最大10万円）で補填可
+   ============================== */
+{patterns:[
+  {
+    title:"パターンA：SoftBank無制限＋SB光10G（端末返却→新端末）",
+    reason:"父子は22か月目で返却＋新端末の一択。SBペイトク2で無制限を確保。auひかり違約金・残債はあんしん乗り換えで全額補填できることを先に伝えて障壁を解消。Netflixパック特典終了の移行説明が必須。",
+    phones:[
+      {who:"父（50代）",plan:"SB ペイトク2（無制限）",min:"7,898円",disc:"新みんな家族割▲1,210円＋おうち割光セット▲1,100円＋カード割▲330円（ゴールド▲550円）",saku:"おうち割施策▲16,500円＋PayPay15,000pt＋MNP施策10,000pt。端末：Galaxy慣れ・iPhoneは抵抗あり→SB Pixel10 1円/月×12 or SB Pixel10a 1円/月×24。⚠Netflixパック特典→乗り換えで終了・移行説明必須"},
+      {who:"母（50代）",plan:"SB ミニフィット2（〜5GB） or テイガク無制限",min:"5,368円（テイガク）",disc:"新みんな家族割▲1,210円＋おうち割▲1,100円＋カード割▲330円",saku:"MNP施策10,000pt。Xperia一括→持ち込み可。通話かけ放題継続希望→定額オプション+（1,980円）追加。⚠@ezweb.comメアド消滅→Gmail移行を事前案内"},
+      {who:"子（20歳）",plan:"SB ペイトク2（無制限）",min:"7,898円",disc:"同上",saku:"おうち割施策▲16,500円＋PayPay15,000pt＋MNP施策10,000pt。端末：iPhone継続・ゲーム重視→SB iPhone17 1円/月×24"}
+    ],
+    net:{plan:"SB光 10ギガ（解約新規）",fee:"基本料金＋550円（オプションパック）",how:"解約新規",saku:"KD30▲33,000円＋あんしん乗り換え（最大10万円）でauひかり違約金＋残債20,625円を全額補填。補填はお客様が先払い後に証明書アップロード→普通為替で受け取り（SBが直接払うわけではない）"},
+    points:"・22か月目端末＝返却＋新端末の一択（残り2回分の支払いは発生と事前説明）\n・あんしん乗り換えはキャッシュバック（普通為替）方式→お客様が先払い・証明書アップロード後に受け取り\n・⚠Netflixパック2(P)終了→Netflix支払い方法再登録・Amazonプライム別途契約（年5,900円 or 月600円）が必要\n・父の現状6,556円（基本9,086円-家族割▲1,210円-スマバリ▲1,100円-カード割▲220円）にNetflix・Amazonプライム含む→SB移行後と総額比較で正直に説明\n・母の@ezweb.comメアド消滅を乗り換え前に案内→Gmail移行を提案して抵抗を軽減"
+  },
+  {
+    title:"パターンB：ワイモバイルで月額圧縮＋ギガ設計（子の60GBどう解決するか）",
+    reason:"料金重視ならYM。子の60GBはL（35GB）では不足するため、子だけSBとのミックスか、シンプル3 M×2回線で30+30GBの追加SIMで解決する2案を提示する。",
+    phones:[
+      {who:"父（50代）",plan:"YM シンプル3 L（35GB）",min:"3,498円",disc:"おうち割光セット(A)▲1,650円＋カード割▲330円（ゴールド▲550円）",saku:"おうち割施策▲16,500円＋PayPay15,000pt（1使用者1還元）。端末：Galaxy慣れ→YM対応Android 1円 or SB Pixel10a。⚠Netflixパック移行説明必須"},
+      {who:"母（50代）",plan:"YM シンプル3 S（5GB）",min:"1,298円",disc:"おうち割光セット(A)▲1,650円＋カード割▲330円",saku:"SIM単体MNP 20,000pt（Sはおうち割施策対象外のためMNP枠で取る・増量OP必須）。母：通話かけ放題継続→だれとでも定額+〈10分〉880円追加。⚠@ezweb.com移行案内"},
+      {who:"子（20歳）",plan:"YM シンプル3 L（35GB）→不足分はSIMを1本追加 or 子だけSB",min:"3,498円〜",disc:"おうち割光セット(A)▲1,650円＋カード割▲330円",saku:"おうち割施策▲16,500円＋PayPay15,000pt。iPhone継続→SB iPhone17 1円/月×24（子だけSBにする場合）or YM 17e 1円（費用重視の場合）。60GBはLで不足→シンプル3 M×2回線（O19新規施策10,000pt）も選択肢"}
+    ],
+    net:{plan:"SB光 10ギガ（解約新規）",fee:"基本料金＋550円",how:"解約新規",saku:"KD30▲33,000円＋あんしん乗り換えで違約金・残債補填"},
+    points:"・子の60GBが最大の分かれ目→無制限ならSB（A案）、料金重視ならYM＋ギガ設計（B案）\n・ギガ不足は「無制限」だけでなく30+30GBの2回線追加でも解決できる（O19施策10,000pt）\n・母のSはおうち割施策対象外→SIM単体MNP枠で取る（増量OP 550円/月必須）\n・@ezweb.comメアド消滅→Gmail移行を事前案内して乗り換え抵抗を軽減\n・auPAYカードゴールド特典消滅→PayPayカードゴールドへの切替対案提示（通信料最大10%還元）"
+  },
+  {
+    title:"パターンC：SIM単体CB最大化（端末持ち込み・現端末継続）",
+    reason:"父子の端末は22か月目で返却＋新端末の一択が基本だが、残債継続（一括支払い）してSIM単体にする場合のCB最大化案。端末を動かさない代わりにMNP CB3回線分を最大化する。",
+    phones:[
+      {who:"父（50代）",plan:"YM シンプル3 L（35GB）",min:"3,498円（端末は残債一括支払い前提）",disc:"おうち割▲1,650円＋カード割▲330円",saku:"SIM単体MNP 20,000pt or ▲22,000円（増量OP必須）＋おうち割施策▲16,500円＋PayPay15,000ptのどちらか大きい方"},
+      {who:"母（50代）",plan:"YM シンプル3 S（5GB）",min:"1,298円",disc:"おうち割▲1,650円＋カード割▲330円",saku:"SIM単体MNP 20,000pt（増量OP必須）"},
+      {who:"子（20歳）",plan:"YM シンプル3 L（35GB）",min:"3,498円（端末残債一括支払い前提）",disc:"おうち割▲1,650円＋カード割▲330円",saku:"SIM単体MNP 20,000pt or おうち割施策▲16,500円＋PayPay15,000ptのどちらか大きい方"}
+    ],
+    net:{plan:"SB光 10ギガ（解約新規）",fee:"基本料金＋550円",how:"解約新規",saku:"KD30▲33,000円＋あんしん乗り換えで違約金・残債補填"},
+    points:"・父子の残債を一括で精算してSIM単体にする場合の最大化案（残債額と施策額を比較して判断）\n・3回線SIM単体で最大60,000pt＋おうち割施策で最大93,000円相当\n・60GBはL（35GB）では不足する可能性→自宅Wi-Fi（SB光）での補完を前提に説明\n・Netflixパック移行説明は共通で必須"
+  }
+]},
+
+/* ==============================
+   ケース3｜混同家族3社
+   前提：固定回線なし（マンション備え付け）→おうち割不可・家族割が軸
+         父：UQ 1年前一括→持ち込み可。ただし1年前イベント特典利用済み→再適用条件確認必須
+         母：IIJmio→即日MNP予約番号発行不可→当日は父・子の2台のみ
+         子：au スマホスタートベーシック 22か月目→返却＋新端末の一択
+   ============================== */
+{patterns:[
+  {
+    title:"パターンA：全員ワイモバイルへ集約（家族割軸・子は新端末）",
+    reason:"要望の核心は「1社にまとめて管理を楽に」。固定回線が動かせずおうち割不可→家族割（2回線目以降▲1,100円）を軸にYMへ集約。子は22か月目で返却＋新端末の一択。IIJmioの予約番号制約から当日2台＋母は後日の段取りを最初に提示する。",
+    phones:[
+      {who:"父（50代）",plan:"YM シンプル3 M（30GB）",min:"4,048円（主回線のためおうち割なし）",disc:"PayPayカード割▲330円のみ（おうち割なし・家族割は2回線目以降のため主回線に割引なし）",saku:"AQUOS wish4一括→持ち込み可。1年前イベント特典利用済み→再適用条件・短期解約履歴を申込前に必ず確認。当日MNP可"},
+      {who:"母（50代）",plan:"YM シンプル3 S（5GB）",min:"1,848円",disc:"家族割▲1,100円＋カード割▲330円",saku:"こだわり「サイズ小さめ・機種は何でも可」→iPhone16e 1円/月×24（MNP）。SE2（中古）はSIMロック＋赤ロム確認必須。⚠IIJmioは即日予約番号不可→後日来店"},
+      {who:"子（20歳）",plan:"YM シンプル3 M（30GB）",min:"2,948円",disc:"家族割▲1,100円＋カード割▲330円",saku:"22か月目で返却＋新端末の一択。YM iPhone17e 1円/月×24 or SB iPhone17 1円/月×24の2パターン提示。当日MNP可"}
+    ],
+    net:{plan:"変更なし（マンション備え付け）",fee:"0円",how:"変更なし",saku:"固定なし＝おうち割不可→家族割が軸。PayPayカード新規発行▲330円/月を追加提案"},
+    points:"・段取り：当日＝父・子の2台。母は「予約番号を取得してから後日来店」と最初に伝える\n・父の特典利用歴1年→再適用条件・短期解約履歴を申込前に確認（適用不可なら施策なしで提案）\n・おうち割なし→家族割（2回線目以降▲1,100円）＋PayPayカード新規発行▲330円で最安を作る\n・子は22か月目→返却＋新端末一択（24か月目までの残り支払いは発生と事前説明）\n・母のSE2（中古）はSIMロック解除確認＋赤ロム（ネットワーク利用制限）確認が必須"
+  },
+  {
+    title:"パターンB：父・母のみSIM単体CB＋子は新端末（CB最大化）",
+    reason:"父と母はSIM単体でCBを最大化。子は22か月目で端末セット必須のためSIM単体は選べない。段取りはパターンAと同じ（当日2台＋母は後日）。",
+    phones:[
+      {who:"父（50代）",plan:"YM シンプル3 M（30GB）",min:"4,598円（増量OP 550円込）",disc:"カード割▲330円",saku:"SIM単体MNP 20,000pt or ▲22,000円（増量OP必須）。ただし特典履歴1年→再適用条件確認は必須。増量OP込みで着地S or Mを検討"},
+      {who:"母（50代）",plan:"YM シンプル3 S（5GB）",min:"2,398円（増量OP 550円込）",disc:"家族割▲1,100円＋カード割▲330円",saku:"SIM単体MNP 20,000pt（増量OP必須）。⚠IIJmioは後日"},
+      {who:"子（20歳）",plan:"YM シンプル3 M（30GB）",min:"2,948円",disc:"家族割▲1,100円＋カード割▲330円",saku:"22か月目→端末セット必須（SIM単体不可）。YM iPhone17e 1円/月×24 or SB iPhone17の2パターン。おうち割施策なし（固定回線なし）のためMNP施策との比較はなし"}
+    ],
+    net:{plan:"変更なし",fee:"0円",how:"変更なし",saku:"—"},
+    points:"・父・母の2台はSIM単体で最大40,000pt\n・子は返却プログラム22か月目→端末セットが必須（SIM単体は選べない点に注意）\n・父のSIM単体施策は特典利用歴1年の確認次第\n・段取りは同じ：当日＝父・子、母は後日"
+  }
+]},
+
+/* ==============================
+   ケース4｜楽天単身
+   前提：iPhone15は返却P 12か月目→SIMのみ一択（残債36回分・返却しても消えない）
+         引越し直後・自宅Wi-Fiなし→Air or 光新規が必須
+         SB1Gマンション＝後日判定（作業員が行くまで配線が来ているか不明）→即日確定はAir
+         CBニーズ大（冷蔵庫・洗濯機）
+   ============================== */
+{patterns:[
+  {
+    title:"パターンA：SoftBank＋Air（電波解消＋即日Wi-Fi）",
+    reason:"不満の核心は電波→プラチナバンドによる安定回線で解消を最優先。iPhone15は12か月目のためSIMのみ一択。Airで即日Wi-Fi環境も確立。SB1Gマンションは後日判定のため即日確定にはAirが唯一の選択肢。",
+    phones:[
+      {who:"単身男性（30代）",plan:"SB ペイトク2（無制限）",min:"9,108円",disc:"おうち割光セット▲1,100円＋PayPayカード割▲330円（単身のため家族割なし）",saku:"MNP施策10,000pt＋おうち割施策▲16,500円＋PayPay15,000pt（端末購入契約でも適用）。SIMのみ（iPhone15の残債36回分は支払い継続）"}
+    ],
+    net:{plan:"SoftBank Air（新規）",fee:"5,368円＋550円（オプションパック）",how:"新規",saku:"▲33,000円。工事不要・引越し直後でも即日。SB1Gマンションは後日判定のためAirが即日確定の唯一の選択肢"},
+    points:"・SIMのみ前提（12か月目・返却しても残債36回分は消えない・24か月支払い必須）\n・後日判定＝当日作業員が行くまで光の配線が部屋まで来ているか不明→即日確定にはAirが唯一の答え\n・後日光1Gマンションの判定後、光へ切替提案も可\n・Air開通でおうち割成立→施策▲16,500円＋PayPay15,000ptが取れる"
+  },
+  {
+    title:"パターンB：ワイモバイル＋Air（月額重視）",
+    reason:"月額を下げたいならYM。Airを自宅Wi-Fiとして使うことで外出80GBをLに圧縮できるかヒアリング必須。",
+    phones:[
+      {who:"単身男性（30代）",plan:"YM シンプル3 L（35GB）",min:"3,498円",disc:"おうち割光セット(A)▲1,650円＋PayPayカード割▲330円",saku:"おうち割施策▲16,500円＋PayPay15,000pt（1使用者1還元・端末購入契約でも適用）。SIMのみ"}
+    ],
+    net:{plan:"SoftBank Air（新規）",fee:"5,368円＋550円",how:"新規",saku:"▲33,000円"},
+    points:"・外で本当に何GB使うかのヒアリング必須。動画が通勤メインならLで不足の可能性→正直に案内\n・SIMのみ前提（同上）\n・おうち割施策▲16,500円＋PayPay15,000pt＋Air▲33,000円で合計81,500円相当のCB"
+  },
+  {
+    title:"パターンC：SIM単体＋Air（CB最大化・家電購入支援）",
+    reason:"CBニーズが最優先の場合の最大化案。SIM単体MNP＋Air▲33,000円で53,000円相当。自宅Wi-Fiが入ることで外出ギガも圧縮できる。",
+    phones:[
+      {who:"単身男性（30代）",plan:"YM シンプル3 L（35GB）",min:"3,498円（増量OP 550円別途）",disc:"おうち割光セット(A)▲1,650円＋カード割▲330円",saku:"SIM単体MNP 20,000pt or ▲22,000円（増量OP必須）。LはSIM単体施策対象かどうか要確認（Sで入って翌日L切替でも可）"}
+    ],
+    net:{plan:"SoftBank Air（新規）",fee:"5,368円＋550円",how:"新規",saku:"▲33,000円。SIM単体20,000pt＋Air33,000円＝合計53,000円相当"},
+    points:"・CB合計53,000円相当が冷蔵庫・洗濯機の買い替え原資に直結\n・1円端末は使えない（SIMのみ前提）\n・SIM単体施策はデータ増量OP（550円/月）が条件"
+  }
+]},
+
+/* ==============================
+   ケース5｜夫婦2人・ドコモ光
+   前提：夫婦ともに返却P 8か月目→SIMのみ一択（24か月支払い必須）
+         ドコモ光1G→SB光へ事業者変更（工事不要）
+         レンタルルーター利用中→返却期限内に返却しないと違約金
+         dカードなし・CBニーズあり
+         母はahamo（通話ニーズなし）
+   ============================== */
+{patterns:[
+  {
+    title:"パターンA：SIM単体＋SB光事変（本命）",
+    reason:"夫婦ともに返却P 8か月目→SIMのみ一択。光はドコモ光から事業者変更（事変）で工事不要。おうち割で月額も圧縮し、CB積み上げで訴求。レンタルルーター返却期限の案内も必須。",
+    phones:[
+      {who:"父（50代）",plan:"YM シンプル3 S（5GB）",min:"1,848円（増量OP 550円込）",disc:"おうち割光セット(A)▲1,650円＋PayPayカード割▲330円（要新規発行）",saku:"SIM単体MNP 20,000pt or ▲22,000円（データ増量OP必須・着地SでもM/Lで入って翌日Sへ変更案内）"},
+      {who:"母（50代）",plan:"YM シンプル3 M（30GB）",min:"2,948円（増量OP 550円込）",disc:"おうち割光セット(A)▲1,650円＋PayPayカード割▲330円",saku:"SIM単体MNP 20,000pt or ▲22,000円（増量OP必須）またはおうち割施策▲16,500円＋PayPay15,000pt（M/L対象）の大きい方。母はahamo→通話ニーズなし→通話OP不要"}
+    ],
+    net:{plan:"SB光 1ギガ（マンション）",fee:"4,180円＋550円＝4,730円",how:"事業者変更（事変）",saku:"KD20/30▲22,000〜33,000円。⚠ドコモ光のレンタルルーターは返却期限内に返却しないと違約金→必ずセットで案内"},
+    points:"・夫婦ともに8か月目→SIMのみ一択（24か月縛りはどの社も共通）\n・光は事変で工事不要→おうち割の開通期限から逆算して光を先に申込\n・⚠レンタルルーター返却期限を必ず案内（違約金回避）\n・dカードなし→PayPayカード新規発行で▲330円/月\n・母はahamoで通話ニーズなし→通話OPは不要"
+  },
+  {
+    title:"パターンB：SIM単体＋SoftBank Air（即日・工事手配なし）",
+    reason:"工事日程を待たずに即日おうち割の起算ができるのがメリット。マンション1G判定○なので基本は光が優位だが、急ぐ場合はAirから入って後日光へ切替も可。",
+    phones:[
+      {who:"父（50代）",plan:"YM シンプル3 S（5GB）",min:"1,848円（増量OP 550円込）",disc:"おうち割光セット(A)▲1,650円＋カード割▲330円",saku:"SIM単体MNP 20,000pt or ▲22,000円（増量OP必須）"},
+      {who:"母（50代）",plan:"YM シンプル3 M（30GB）",min:"2,948円（増量OP 550円込）",disc:"おうち割光セット(A)▲1,650円＋カード割▲330円",saku:"SIM単体MNP 20,000pt または おうち割施策▲16,500円＋PayPay15,000ptの大きい方"}
+    ],
+    net:{plan:"SoftBank Air（新規）",fee:"5,368円＋550円",how:"新規",saku:"▲33,000円。即日おうち割起算可。後日SB光1Gへの切替提案も可（マンション判定○）"},
+    points:"・即日おうち割起算が最大のメリット\n・マンション1G判定○→後日光1Gへ切替提案も可（その場合KD20/30適用）\n・SIM単体CB：父20,000pt＋母20,000pt＋Air33,000円＝合計73,000円相当\n・レンタルルーター返却案内は光・Air問わず必須"
+  }
+]},
+
+/* ==============================
+   ケース6｜単身＋別居高齢両親
+   前提：本人はSB既存→モバイル変更なし（SB同士の乗り換えはMNP施策対象外）
+         本人宅SB光1G既存→10Gへ変更案内可（KD20・自社変更のため解約金補填不可）
+         父母は65歳以上・別居・らくらくスマホF-42A
+         別居家族グループ作成に確認書類（健保・戸籍謄本）が必須
+         父母は長通話多い→かけ放題必須（60歳以上はスーパーだれとでも定額+が880円）
+         本人はPayPayカードノーマルで月15万以上利用
+   ============================== */
+{patterns:[
+  {
+    title:"パターンA：父母YM＋父母宅SB光化＋本人宅SB光10G化（おうち割フル活用）",
+    reason:"本人はSB既存でモバイル変更なし。本人宅SB光1G既存→10Gへ変更（KD20適用）。父母はYMでSIM単体MNP。HOME5Gを解約しSB光新規で父母宅もおうち割を組む。",
+    phones:[
+      {who:"本人（30代）",plan:"SB ペイトク50（変更なし）",min:"6,138円（現状）",disc:"おうち割・カード割適用中",saku:"PayPayカードゴールド切替提案（月15万×1.5%=年27,000pt＞年会費11,000円＋SB通信料最大10%還元・LYPプレミアム無料）"},
+      {who:"父（65歳以上・別居）",plan:"YM シンプル3 M（30GB）",min:"3,828円（増量OP550円＋スーパーだれとでも定額+880円込）",disc:"おうち割光セット(A)▲1,650円＋カード割▲330円",saku:"SIM単体MNP 20,000pt or おうち割施策▲16,500円＋PayPay15,000ptの大きい方。らくらくスマホF-42A→YM動作可否確認（SIMロック解除・対応バンド要確認）。60歳以上：スーパーだれとでも定額+（24時間）が▲1,100円割引で880円→10分かけ放題と同額のため24時間一択"},
+      {who:"母（65歳以上・別居）",plan:"YM シンプル3 M（30GB）",min:"3,828円（同上）",disc:"おうち割光セット(A)▲1,650円＋カード割▲330円",saku:"同上（2回線目も20,000pt適用可）"}
+    ],
+    net:{plan:"父母宅：HOME5G解約→SB光 1G/10G（新規）／本人宅：SB光1G→10G変更（KD20）",fee:"基本料金＋550円",how:"父母宅：新規（HOME5Gは残債なし3年以上のため解約負担小）／本人宅：自社変更",saku:"父母宅：KD20/30▲22,000〜33,000円。本人宅：KD20のみ適用（自社変更のため解約金補填は不可）"},
+    points:"・⚠別居家族グループは確認書類（健康保険証・戸籍謄本）が必須→当日の有無を最初に確認\n・本人＝SB既存でモバイル変更なし（SB→SBはMNP施策対象外）\n・本人宅SB光1G→10G変更はKD20適用可（自社変更のため解約金補填は不可）\n・60歳以上：スーパーだれとでも定額+が▲1,100円割引で880円→10分かけ放題と同額のためスーパー一択\n・らくらくスマホF-42A→SIMロック解除・対応バンド・動作確認端末リスト確認必須（2021年以前購入）\n・本人のPayPayカードノーマル→ゴールドへ切替提案（月15万利用なら年11,000円以上の元が取れる）"
+  },
+  {
+    title:"パターンB：固定回線そのまま＋SIM単体のみ（変化最小・両親の安心優先）",
+    reason:"高齢の両親の環境変化を最小にする堅実案。HOME5G維持でらくらくスマホ据え置き。おうち割なしのため月額はAより高いが、操作環境が変わらない安心を優先するケース。",
+    phones:[
+      {who:"本人（30代）",plan:"SB ペイトク50（変更なし）",min:"6,138円",disc:"現状維持",saku:"PayPayカードゴールド切替提案"},
+      {who:"父（65歳以上・別居）",plan:"YM シンプル3 M（30GB）",min:"4,008円（スーパーだれとでも定額+880円込・おうち割なし）",disc:"カード割▲330円のみ",saku:"SIM単体MNP 20,000pt（増量OP必須）。らくらくスマホF-42A持ち込み→操作環境変わらず安心"},
+      {who:"母（65歳以上・別居）",plan:"YM シンプル3 M（30GB）",min:"4,008円（同上）",disc:"カード割▲330円のみ",saku:"SIM単体MNP 20,000pt（同上）"}
+    ],
+    net:{plan:"変更なし（本人宅：SB光継続／父母宅：HOME5G継続）",fee:"現状維持",how:"変更なし",saku:"—"},
+    points:"・変化最小→両親の安心を優先するパターン\n・おうち割なし→カード割のみで月額を下げる\n・らくらくスマホ据え置き→操作性・サポート体制が変わらない\n・MNP 20,000pt×2台＝40,000ptの還元が訴求ポイント\n・別居家族グループの確認書類は本パターンでも必要"
+  }
+]},
+
+/* ==============================
+   ケース7｜J:COM光テレビ
+   前提：J:COM発番の固定電話→番号引き継ぎ困難（最初に確認）
+         J:COM撤去工事費47,520円→あんしん乗り換え（最大10万円）で補填可能
+         光テレビ新設工事費は施策で負担不可
+         父母：Pixel7a 32か月/48か月→持ち込み可（返却Pではない）
+         娘：iPhone14Pro 256GB バッテリー80%・カメラ強こだわり→持ち込みが本命
+         父：仕事で短時間通話多め（5分以内）→準定額オプション+〈5分〉880円
+         auPAYカードゴールド・月15万以上・auじぶん銀行4,500pt還元中
+   ============================== */
+{patterns:[
+  {
+    title:"パターンA：携帯YM一本化＋SB光10G（撤去費フル補填・本命）",
+    reason:"躊躇の原因は撤去費→あんしん乗り換え（最大10万円）で47,520円を補填できることを先に明示。J:COM発番の電話番号は引き継ぎ困難なため先に確認。娘のiPhone14Proはカメラ強こだわり＋バッテリー80%→持ち込み継続が本命。",
+    phones:[
+      {who:"父（50代）",plan:"YM シンプル3 L（35GB）",min:"3,498円（準定額オプション+880円別途）",disc:"おうち割光セット(A)▲1,650円＋カード割▲330円（ゴールドなら▲550円）",saku:"おうち割施策▲16,500円＋PayPay15,000pt（1使用者1還元）。Pixel7a 32か月目で持ち込み可。父：仕事で短時間通話多め→準定額オプション+〈5分〉880円を追加"},
+      {who:"母（40代）",plan:"YM シンプル3 L（35GB）",min:"3,498円",disc:"おうち割光セット(A)▲1,650円＋カード割▲330円",saku:"おうち割施策▲16,500円＋PayPay15,000pt（母の使用者枠で別途適用）。Pixel7a 32か月目で持ち込み可"},
+      {who:"娘（15歳）",plan:"YM シンプル3 M（30GB）",min:"2,398円",disc:"おうち割光セット(A)▲1,650円＋カード割▲330円",saku:"iPhone14Pro（256GB・バッテリー80%）でカメラ強こだわり→持ち込み継続が本命。買い替えるならSB iPhone17（256GB）1円/月×24（無印でも14Pro比でカメラ向上）。MNPのためU18新規施策は対象外"}
+    ],
+    net:{plan:"SB光 10ギガ（解約新規）",fee:"基本料金＋550円（オプションパック）",how:"解約新規",saku:"KD30▲33,000円＋あんしん乗り換え（最大10万円）でJ:COM撤去費47,520円を補填。補填はお客様先払い→証明書アップロード→普通為替受け取り。⚠J:COM発番電話番号引き継ぎ困難。⚠光テレビ新設工事費は施策負担不可"},
+    points:"・⚠J:COM発番の固定電話は番号引き継ぎ困難→最初に確認してからA/B/Cを選ぶ\n・撤去費47,520円はあんしん乗り換え最大10万円の範囲内→先に補填可能と明示\n・⚠光テレビ新設工事費は施策で負担不可→自己負担前提で総額比較\n・娘のカメラこだわり→安易な16e/17e案内はNG。持ち込み継続かSB iPhone17の2択で誠実に\n・auPAYカードゴールド特典消滅→PayPayカードゴールド対案提示（月15万×1.5%=年27,000pt＋SB通信料最大10%還元で置き換わる）\n・おうち割施策3名分：▲49,500円＋PayPay45,000pt"
+  },
+  {
+    title:"パターンB：電話・テレビはJ:COMに残してネットだけSB化（番号保持優先）",
+    reason:"J:COM発番の電話番号を守るため、電話・テレビはJ:COMの最小プランで残し、ネットだけSB光 or Airに変更する案。おうち割は成立し、撤去工事も最小限に抑えられる。",
+    phones:[
+      {who:"父（50代）",plan:"YM シンプル3 L（35GB）",min:"3,498円（準定額オプション+880円別途）",disc:"おうち割光セット(A)▲1,650円＋カード割▲330円",saku:"おうち割施策▲16,500円＋PayPay15,000pt。Pixel7a持ち込み。通話：準定額オプション+〈5分〉880円"},
+      {who:"母（40代）",plan:"YM シンプル3 L（35GB）",min:"3,498円",disc:"おうち割光セット(A)▲1,650円＋カード割▲330円",saku:"おうち割施策▲16,500円＋PayPay15,000pt。Pixel7a持ち込み"},
+      {who:"娘（15歳）",plan:"YM シンプル3 M（30GB）",min:"2,398円",disc:"おうち割光セット(A)▲1,650円＋カード割▲330円",saku:"持ち込み or SB iPhone17。U18新規施策は対象外（MNPのため）"}
+    ],
+    net:{plan:"SB光 or SoftBank Air（新規）＋J:COMはTV・電話最小プランで残す",fee:"基本料金＋550円",how:"新規",saku:"SB光1G戸建て○→KD30▲33,000円。J:COM側の減額プラン可否を要確認。J:COMのTV・電話プランも含めた総額で比較提示"},
+    points:"・固定電話番号をそのまま守れる→番号引き継ぎの不安がゼロ\n・J:COM側はTV・電話最小プランへ変更→残存費用を含めた総額比較が必要\n・撤去工事は最小限（ネット部分だけの撤去）\n・J:COMの残存プラン料金次第では総額がA案より高くなる可能性→正直に比較"
+  },
+  {
+    title:"パターンC：J:COM完全維持＋携帯のみYM化（変化最小・総額で有利な場合）",
+    reason:"固定を一切動かさず携帯3回線だけYMへ変更。撤去・電話・テレビの不安をゼロにできる。維持しても総額が下がるなら「光は変えない」提案も正解。",
+    phones:[
+      {who:"父（50代）",plan:"YM シンプル3 L（35GB）",min:"4,048円（おうち割なし・増量OP 550円込・通話OP880円込）",disc:"カード割▲330円のみ",saku:"SIM単体MNP 20,000pt or ▲22,000円（増量OP必須）。通話：準定額オプション+〈5分〉880円"},
+      {who:"母（40代）",plan:"YM シンプル3 L（35GB）",min:"4,048円（同上）",disc:"カード割▲330円のみ",saku:"SIM単体MNP 20,000pt"},
+      {who:"娘（15歳）",plan:"YM シンプル3 M（30GB）",min:"3,498円（おうち割なし・増量OP込）",disc:"カード割▲330円のみ",saku:"SIM単体MNP 20,000pt（増量OP必須）。持ち込み継続"}
+    ],
+    net:{plan:"J:COM完全維持",fee:"7,348円（現状）",how:"変更なし",saku:"3回線SIM単体で最大60,000pt（▲66,000円相当）"},
+    points:"・撤去・電話・テレビの不安をゼロにできる→躊躇の原因を完全に排除\n・維持しても総額が下がるなら「光は変えない」提案も立派な正解\n・家族割なし→SIM単体CB 60,000ptで訴求\n・J:COMのTV・電話は現状維持→スマホ費用だけが下がる点を明確に提示"
+  }
+]}
+
+];
+
+var CASES = [
+  {
+    name:"1. ドコモ家族3人", sub:"シンプル乗り換え",
+    title:"ケース1｜ドコモ家族3人 → シンプル乗り換え",
+    phones:[
+      {who:"父（50代）",tag:"t-docomo",label:"docomo",plan:"ギガライト",usage:"4GB",fee:"4,378円",device:"iPhone14（128GB・バッテリー78%）",dfee:"0円（3年前一括）"},
+      {who:"母（50代）",tag:"t-docomo",label:"docomo",plan:"ギガライト",usage:"2GB",fee:"3,278円",device:"AQUOS sense4（64GB）",dfee:"0円（一括）"},
+      {who:"子（17歳）",tag:"t-docomo",label:"docomo",plan:"eximo 無制限",usage:"27GB",fee:"6,028円",device:"iPhone15（128GB・バッテリー93%）",dfee:"3,245円/月（返却P 12か月目）"}
+    ],
+    net:{name:"NURO光 10G",type:"戸建て",speed:"最大10Gbps",fee:"6,600円",tel:"あり（込）",tv:"なし",cost:"49,500円",debt:"相殺済み、2年以上使用",note:"維持希望、PCゲーム利用あり"},
+    special:"初の他社乗り換え（キャリア歴7年）。NURO光は維持希望。固定電話（NURO光でんわ）込みのためおうち割光セットの対象になる点がカギ。子は返却プログラム12か月目。dカードシルバー利用中・クレジットカードに抵抗なし。モバイル・光・カードともに父が一括管理で名義支払い人。通話ニーズ：家族とも少なめ（LINE通話中心）。父のiPhoneこだわり：写真が撮れれば十分・容量128GBで満足。",
+    area:[[true,"SB Air 4G"],[true,"SB Air 5G"],[true,"SB1G 戸建て"],[true,"SB1G マンション"],[true,"SB10G"]]
+  },
+  {
+    name:"2. au＋auひかり", sub:"高速大容量まとめ",
+    title:"ケース2｜au＋auひかり → 高速大容量まとめ",
+    phones:[
+      {who:"父（50代）",tag:"t-au",label:"au",plan:"使い放題MAX+ Netflixパック2(P)",usage:"30GB",fee:"6,556円",device:"Galaxy S24（256GB・バッテリー良好・Netflix・Amazonプライム同時利用中）",dfee:"1,500円/月（22/48か月）"},
+      {who:"母（50代）",tag:"t-au",label:"au",plan:"ピタットプラン",usage:"3GB",fee:"4,378円",device:"Xperia 10 V（128GB）",dfee:"0円（一括）"},
+      {who:"子（20歳）",tag:"t-au",label:"au",plan:"使い放題MAX",usage:"60GB",fee:"5,258円",device:"iPhone14（128GB・バッテリー88%）",dfee:"2,200円/月（22/48か月）"}
+    ],
+    net:{name:"auひかりホーム１ギガ",type:"戸建て",speed:"最大1Gbps",fee:"6,380円",tel:"あり（込）",tv:"なし",cost:"41,250円",debt:"12ヶ月残あり（20,625円）",note:"解約違約金あり"},
+    special:"全員無制限・大容量希望。SoftBank光へ乗り換え検討中だが、auひかりの解約違約金・工事費残債（20,625円）がネック。補填キャンペーン希望。auPAYカードゴールド所持。父子の端末は返却プログラム22か月目。通話ニーズ：特になし。父はGalaxyの操作に慣れている（カメラ画質が維持できればほかの端末でも可、iPhoneは抵抗あり）。子はiPhone継続希望でゲーム性能重視。母はGB変動の不安から利用量を抑えているが主にWi-Fi利用でギガ不足はなく、通話かけ放題は継続希望。auのメアド＠ezweb.comを使用しているため乗り換えに抵抗あり。<b>父が一番重視しているのは現在の使い放題MAX+ Netflixパック2(P)に含まれているNetflix・Amazonプライムが乗り換え後どうなるか</b>→必ず説明すること。父の現在の月額6,556円の内訳：基本料金9,086円−家族割プラス(3人以上)▲1,210円−auスマートバリュー▲1,100円−auPAYカードお支払い割▲220円（フル割引適用時）。この中にNetflix・Amazonプライム分（合計概算1,400〜1,600円相当）が含まれている。",
+    area:[[true,"SB Air 4G"],[true,"SB Air 5G"],[true,"SB1G 戸建て"],[true,"SB1G マンション"],[true,"SB10G"]]
+  },
+  {
+    name:"3. 混同家族3社", sub:"シンプル乗り換え",
+    title:"ケース3｜混同家族（3社バラバラ） → シンプル乗り換え",
+    phones:[
+      {who:"父（50代）",tag:"t-uq",label:"UQ",plan:"トクトクプラン2",usage:"15/35GB",fee:"3,828円",device:"AQUOS wish4（64GB）",dfee:"0円（1年前一括）"},
+      {who:"母（50代）",tag:"t-iij",label:"IIJmio",plan:"5ギガプラン",usage:"5GB",fee:"950円",device:"iPhoneSE2（中古・82%）",dfee:"0円"},
+      {who:"子（20歳）",tag:"t-au",label:"au",plan:"スマホスタートベーシック",usage:"30GB",fee:"5,423円",device:"iPhone14（87%）",dfee:"2円/月（22/48か月）"}
+    ],
+    net:{name:"マンション備え付け",type:"マンション",speed:"なし",fee:"0円",tel:"なし",tv:"なし",cost:"なし",debt:"なし",note:"JCOM指定"},
+    special:"家族3社バラバラで請求管理が面倒、1キャリアにまとめたい。固定回線は不要。父は1年前にイベントで乗り換え特典利用済み。IIJmioは即日MNP予約番号発行不可→当日乗り換えできるのは2台のみ。auPAYカードなし。子の端末は返却プログラム22か月目。通話ニーズ：家族ともなし。母のiPhoneこだわり：サイズ小さめ希望・機種は何でも可。",
+    area:[[true,"SB Air 4G"],[true,"SB Air 5G"],[true,"SB1G マンション"],[false,"SB1G 戸建て"],[false,"SB10G"]]
+  },
+  {
+    name:"4. 楽天単身", sub:"＋SoftBank Air",
+    title:"ケース4｜楽天単身 → SoftBank Airセット",
+    phones:[
+      {who:"単身男性（30代）",tag:"t-rakuten",label:"楽天",plan:"最強プラン",usage:"80GB",fee:"3,278円",device:"iPhone15（バッテリー97%）",dfee:"3,100円/月（12/48か月）"}
+    ],
+    net:{name:"固定回線なし",type:"マンション",speed:"なし",fee:"0円",tel:"なし",tv:"なし",cost:"なし",debt:"なし",note:"自宅にWi-Fiなし"},
+    special:"通勤・商業施設・地下での楽天の電波に強い不満→安定回線へMNP検討。工事不要のSoftBank Air導入を視野。引越し直後。冷蔵庫・洗濯機買い替えのためCBニーズあり。端末は返却プログラム12か月目。通話ニーズ：ほぼなし（LINE通話）。※エリアの「後日判定」＝当日作業員が行ってみるまで光の配線が部屋まで来ているか分からないという意味。",
+    area:[[true,"SB Air 4G"],[true,"SB Air 5G"],["後日判定","SB1G マンション"],[false,"SB1G 戸建て"],[false,"SB10G"]]
+  },
+  {
+    name:"5. 夫婦2人", sub:"ドコモ光ペア移行",
+    title:"ケース5｜夫婦2人・ドコモ光ペアからの移行",
+    phones:[
+      {who:"父（50代）",tag:"t-docomo",label:"docomo",plan:"ドコモmini",usage:"4GB",fee:"1,540円",device:"Pixel 9a（128GB・バッテリー100%）",dfee:"1円/月（8/48か月）"},
+      {who:"母（50代）",tag:"t-docomo",label:"docomo",plan:"ahamo",usage:"30GB",fee:"2,970円",device:"iPhone16（128GB・バッテリー100%）",dfee:"1円/月（8/48か月）"}
+    ],
+    net:{name:"ドコモ光1ギガ",type:"マンション",speed:"最大1Gbps",fee:"4,400円",tel:"なし",tv:"なし",cost:"なし",debt:"なし",note:"前回BIGLOBE光からの事変。8か月経過。レンタルルーター利用中"},
+    special:"dカードなし。乗り換えに抵抗なし、CBニーズあり。端末は両名とも返却プログラム8か月目（48か月分割）。ドコモ光は前回BIGLOBE光から事業者変更して8か月。通話ニーズ：夫婦とも少なめ。母はahamo（5分通話無料込み）だが通話ニーズなし。",
+    area:[[true,"SB Air 4G"],[true,"SB Air 5G"],[true,"SB1G マンション"],[false,"SB1G 戸建て"],[false,"SB10G"]]
+  },
+  {
+    name:"6. 単身＋別居両親", sub:"高齢者ケース",
+    title:"ケース6｜単身＋別居の高齢両親",
+    phones:[
+      {who:"本人（30代）",tag:"t-sb",label:"SoftBank",plan:"ペイトク50",usage:"45GB",fee:"6,138円",device:"iPhone17ProMax（512GB・バッテリー100%）",dfee:"6,383円/月（6/36か月）"},
+      {who:"父（65歳以上・別居）",tag:"t-docomo",label:"docomo",plan:"irumo＋かけ放題",usage:"9GB",fee:"3,950円",device:"らくらくスマホ F-42A",dfee:"0円（3年前ガラケーから一括）"},
+      {who:"母（65歳以上・別居）",tag:"t-docomo",label:"docomo",plan:"ahamo＋かけ放題",usage:"30GB",fee:"4,070円",device:"らくらくスマホ F-42A",dfee:"0円（3年前ガラケーから一括）"}
+    ],
+    net:{name:"SoftBank光／ドコモHOME5G",type:"マンション／戸建て",speed:"最大1Gbps／最大4.2Gbps",fee:"4,730円／5,280円",tel:"使用していない／なし",tv:"あり／なし",cost:"31,680円／端末代金73,260円",debt:"なし（3年以上）／端末残債なし（4年以上）",note:"なし"},
+    special:"別居だが商談時は同席中。支払い・名義は本人と父で別々。本人はPayPayカードノーマルで月15万以上利用。別居家族グループ作成には家族確認書類（健康保険証・戸籍謄本など）が必要。通話ニーズ：父母とも長通話が多くかけ放題必須（母はahamoだがかけ放題オプションを付けている＝通話多い）。",
+    area:[[false,"SB Air（本人宅）"],[true,"SB Air（父母宅）"],[true,"SB1G 両宅"],[true,"SB10G 両宅"]]
+  },
+  {
+    name:"7. J:COM光テレビ", sub:"からの乗り換え",
+    title:"ケース7｜J:COM光・テレビからの乗り換え",
+    phones:[
+      {who:"父（50代）",tag:"t-au",label:"au",plan:"auバリューリンク マネ活2",usage:"20GB/無制限",fee:"8,228円",device:"Pixel 7a（128GB）",dfee:"1,300円（32/48か月）"},
+      {who:"母（40代）",tag:"t-au",label:"au",plan:"auバリューリンク マネ活2",usage:"40GB/無制限",fee:"8,228円",device:"Pixel 7a（128GB）",dfee:"1,300円（32/48か月）"},
+      {who:"娘（15歳）",tag:"t-uq",label:"UQ",plan:"トクトクプラン2",usage:"30GB",fee:"2,728円",device:"iPhone14Pro（256GB・バッテリー80%）",dfee:"0円（一括）"}
+    ],
+    net:{name:"J:COM NET光(N)",type:"戸建て",speed:"最大320Mbps",fee:"7,348円",tel:"あり（込）",tv:"地デジ・BSデジコース",cost:"47,520円",debt:"残債なし",note:"撤去工事費別途発生・5年以上使用"},
+    special:"J:COMはテレビ・固定電話パックのセット料金→比較案内に注意。撤去作業・費用が躊躇ポイント。携帯はワイモバイルに一本化したい方針。auPAYカードゴールド・月15万以上。auじぶん銀行特典4,500pt還元中。固定電話はJ:COM発番の可能性→番号引き継ぎ可否を最初に確認。娘はiPhone14Pro（256GB・バッテリー80%）でカメラ画質に強いこだわり。父母はPixelの操作に慣れている。通話ニーズ：父が仕事で短時間通話多め（5分以内）。",
+    area:[[true,"SB Air 4G"],[true,"SB Air 5G"],[true,"SB1G 戸建て"],[true,"SB1G マンション"],[true,"SB10G"]]
+  }
+];
+
+
+
+// ケースごとの注意事項クイズ（ケース番号と同順）
+var QUIZ_PER_CASE = [
+  // ケース1｜ドコモ家族3人
+  [
+    {q:'返却プログラム（カエドキ等）の端末は、13か月目に返却すれば残債が消える', a:false, exp:'返却しても残債は消えない。24か月目までの支払いはどの携帯会社も必須'},
+    {q:'NURO光は固定電話（NURO光でんわ）込みのため、おうち割光セットの対象になる', a:true, exp:'固定電話込みの契約はおうち割光セット対象→SB/YMに乗り換えても光はそのまま維持しながらセット割が組める'},
+    {q:'おうち割光セット（月額セット割）と家族割は同時に使える', a:false, exp:'おうち割と家族割は併用不可。おうち割の方が割引額が大きいため、おうち割優先が正解'},
+    {q:'SB光でおうち割を組むには、オプションパック（550円）の加入が必須', a:true, exp:'案内する月額は必ず基本料金＋550円で組み立てる（光BBユニット＋Wi-Fiマルチパック＋光電話のセット）'},
+    {q:'ワイモバイルのSIM単体MNPでキャッシュバックを受け取るには、データ増量オプションへの加入が必要', a:true, exp:'CB受け取りに必須。入り口には必要だが半年間は無料→半年以内にMy Y!mobileから解約する提案をセットで行うこと'}
+  ],
+  // ケース2｜au＋auひかり
+  [
+    {q:'返却プログラム（カエドキ等）の端末は、22か月目以降ならいつ返却しても残債は消える', a:false, exp:'返却しても残債は消えない。24か月目まで支払いが発生する（残り2回分）。返却で得られるのは以降の分割が免除されることで、すでに発生した残債とは別'},
+    {q:'auの「Netflixパック」に含まれていたNetflix・Amazonプライムは、他社へ乗り換えても自動的にそのまま使い続けられる', a:false, exp:'auの利用料金に含まれていた特典は解約とともに終了。Netflixは支払い方法の再登録、Amazonプライムは別途契約（年5,900円 or 月600円）が必要'},
+    {q:'あんしん乗り換えキャンペーンの補填は、ソフトバンクが元の会社へ直接支払ってくれる', a:false, exp:'お客様が先に他社へ支払い→証明書を専用サイトへアップロード→審査後に普通為替（キャッシュバック）で受け取る方式。SBが代わりに支払うわけではない'},
+    {q:'あんしん乗り換えキャンペーンによる解約金・撤去費等の補填は最大10万円まで', a:true, exp:'違約金＋工事費残債の合計が10万円以内なら全額カバーできる（モバイルWi-Fiルーター残債は42,000円上限）'},
+    {q:'SB光でおうち割を組むには、オプションパック（550円）の加入が必須', a:true, exp:'案内する月額は必ず基本料金＋550円で組み立てる'}
+  ],
+  // ケース3｜混同家族3社
+  [
+    {q:'IIJmioは来店当日にMNP予約番号を発行してもらえる', a:false, exp:'IIJmioは即日MNP予約番号の発行ができない。当日乗り換えできるのは2台のみ→母は予約番号取得後に後日来店の段取りを最初に伝える'},
+    {q:'返却プログラム（カエドキ等）の端末は、22か月目に返却して乗り換えれば残債はゼロになる', a:false, exp:'返却しても残債は消えない。24か月目まで支払いが発生する'},
+    {q:'中古で購入したスマートフォンは、SIMロックと赤ロム（ネットワーク利用制限）の両方を確認する必要がある', a:true, exp:'中古品はSIMロック残存と赤ロムのリスクがある。持ち込みの場合は必ず確認してから案内する'},
+    {q:'ワイモバイルのMNP施策（20,000pt）は、同一名義の2回線目以降には適用されない', a:false, exp:'同一名義の2回線目以降も20,000pt還元が適用される'},
+    {q:'マンション備え付けのインターネットを利用している場合でも、おうち割光セットは組める', a:false, exp:'おうち割光セットはSB/YMの対象固定回線が必要。マンション備え付け（管理費込み）はおうち割の対象外→家族割が軸になる'}
+  ],
+  // ケース4｜楽天単身
+  [
+    {q:'返却プログラム（カエドキ等）の端末は、13か月目に返却すれば残債が消える', a:false, exp:'返却しても残債は消えない。24か月目までの支払いはどの携帯会社も必須'},
+    {q:'エリア判定の「後日判定」とは、申込書類の審査が後日になるという意味である', a:false, exp:'当日作業員が行ってみるまで、光の配線が部屋まで来ているか分からないという意味。即日確定にはSoftBank Airが唯一の選択肢になる'},
+    {q:'SoftBank Airは工事不要で、引越し直後でも即日利用できる', a:true, exp:'工事不要・即日開通がAirの最大のメリット。1Gマンションが後日判定の場合にAirが有効な理由でもある'},
+    {q:'SB光でおうち割を組むには、オプションパック（550円）の加入が必須', a:true, exp:'案内する月額は必ず基本料金＋550円で組み立てる'},
+    {q:'ワイモバイルのSIM単体MNPでキャッシュバックを受け取るには、データ増量オプションへの加入が必要', a:true, exp:'CB受け取りに必須。入り口には必要だが半年間は無料→半年以内にMy Y!mobileから解約する提案をセットで行うこと'}
+  ],
+  // ケース5｜夫婦2人・ドコモ光
+  [
+    {q:'返却プログラム（カエドキ等）の端末は、8か月目でも返却すれば残債が消える', a:false, exp:'返却しても残債は消えない。24か月目まで支払いが発生する。端末を動かすメリットがないためSIMのみが正解'},
+    {q:'ドコモ光からSoftBank光への変更は、事業者変更（事変）であれば工事不要で切り替えられる', a:true, exp:'事変なら光ファイバー工事不要で切り替えられる。ドコモ光→BIGLOBE光→SB光と複数回の事変でも工事不要'},
+    {q:'現在利用中のドコモ光などのレンタルルーターは、解約後に返却期限内に返さないと違約金がかかる', a:true, exp:'乗り換え時は必ず「レンタル機器の返却期限」をセットで案内する'},
+    {q:'SB光でおうち割を組むには、オプションパック（550円）の加入が必須', a:true, exp:'案内する月額は必ず基本料金＋550円で組み立てる'},
+    {q:'ワイモバイルのSIM単体MNPでキャッシュバックを受け取るには、データ増量オプションへの加入が必要', a:true, exp:'CB受け取りに必須。入り口には必要だが半年間は無料→半年以内にMy Y!mobileから解約する提案をセットで行うこと'}
+  ],
+  // ケース6｜単身＋別居高齢両親
+  [
+    {q:'別居の家族を同一のワイモバイル家族割グループに追加する場合、家族確認書類（健康保険証・戸籍謄本など）は不要である', a:false, exp:'別居の家族グループ作成には家族確認書類が必須。当日揃っているか最初に確認すること'},
+    {q:'SoftBank光1ギガを既にご利用のお客様には、10ギガへの変更を案内できる（KD20適用）', a:true, exp:'ただし自社内の変更のため、解約金等の負担（補填）はできない'},
+    {q:'ワイモバイルの60歳以上の方が「スーパーだれとでも定額+（24時間）」を利用すると、▲1,100円割引が適用されて880円になる', a:true, exp:'10分かけ放題（880円）と同額で24時間かけ放題が使える→60歳以上はスーパーだれとでも定額+一択'},
+    {q:'SB光でおうち割を組むには、オプションパック（550円）の加入が必須', a:true, exp:'案内する月額は必ず基本料金＋550円で組み立てる'},
+    {q:'2021年9月以前にキャリアで購入した端末は、SIMロックがかかっている可能性があり、他社のSIMを使う前に解除が必要', a:true, exp:'2021年10月以降のキャリア販売端末はロック禁止。それ以前の端末（らくらくスマホF-42Aは2021年以前）は購入元キャリアのマイページで解除確認が必要'}
+  ],
+  // ケース7｜J:COM光テレビ
+  [
+    {q:'J:COM発番の固定電話番号は、SoftBank光へ乗り換えた際にそのまま引き継ぐことができる', a:false, exp:'J:COM発番の電話番号は引き継ぎが困難。番号を残したい場合は電話・テレビはJ:COMに残してネットだけSB化する案（パターンB）を提案する'},
+    {q:'ソフトバンク光テレビの新設工事費は、あんしん乗り換えキャンペーンで負担できる', a:false, exp:'光テレビの新設工事費は補填対象外→自己負担前提で案内する'},
+    {q:'あんしん乗り換えキャンペーンによる解約金・撤去費等の補填は最大10万円まで', a:true, exp:'J:COMの撤去費47,520円は最大10万円の範囲内で全額補填できる'},
+    {q:'あんしん乗り換えキャンペーンの補填は、ソフトバンクが元の会社へ直接支払ってくれる', a:false, exp:'お客様が先に支払い→証明書アップロード→普通為替で受け取る方式。SBが代わりに支払うわけではない'},
+    {q:'SB光でおうち割を組むには、オプションパック（550円）の加入が必須', a:true, exp:'案内する月額は必ず基本料金＋550円で組み立てる'}
+  ]
+];
+// 後方互換：getQuizDataはケースごとに返す
+
+var curQuiz = [];
+
+/* ============ サイドバー ============ */
+function buildSidebar(){
+  var sb = document.getElementById('sidebar');
+  var html = '<div class="sec-label">ケース一覧</div>';
+  CASES.forEach(function(c, i){
+    var saved = memCache[i] && memCache[i]._touched ? ' <span class="done">●保存済</span>' : '';
+    html += '<button class="cbtn' + (cur===i?' on':'') + '" data-i="' + i + '">' + c.name + saved + '<small>' + c.sub + '</small></button>';
+  });
+  html += '<div class="sec-label" style="margin-top:12px">📋 施策早見</div>'
+    + '<div class="saku" style="border-left:3px solid var(--ym)"><b style="color:var(--ym)">Y!mobile 端末ラインナップ</b><br><span style="font-size:11px;color:var(--ink3)">※すべて利用料なし／故障安心補償パック880円必須</span><br>iPhone 16 128GB：402円/月×24（MNP）<br>iPhone 16e 128GB：1円/月×24（MNP/新規）<br>iPhone 17e 256GB：1円/月×24（MNP/新規）<br>Redmi 15 5G 128GB：一括1円（MNP/新規）<br>nubia S2 128GB：一括1円（MNP/新規）<br>Pixel 9a 128GB：1円×24（MNP/新規）<br>Pixel 10a 128GB：1円×24（MNP/新規）<br>Libero 5G IV 128GB：一括1円（MNP/新規）<br>moto g64y 5G 128GB：一括1円（MNP）<br>Galaxy A25 64GB：一括1円（MNP）<br>AQUOS wish5 64GB：一括1円（MNP/新規）</div>'
+    + '<div class="saku" style="border-left:3px solid var(--sb)"><b style="color:var(--sb)">SoftBank 端末ラインナップ</b><br>iPhone 17 Pro 256GB：1円/月×12（13〜24回目6,050円/月）（MNP/UPG）<br>iPhone 17 256GB：1円×24（MNP/新規）<br>iPhone 17 256GB：410円/月×24（番号移行）<br>iPhone 17e 128GB：1円×24（MNP/UPG/新規）<br>iPhone 16 128GB：1円/月×24（MNP/UPG/新規）<br>iPhone 16e 128GB：1円/月×24（MNP/UPG/新規・特典利用料なし）<br>Galaxy S26 256GB：1円×24（MNP/UPG/新規）<br>Galaxy S26 Ultra 256GB：810円/月×24（MNP/UPG/新規）<br>Pixel 9 128GB：1円/月×12（MNP/UPG）<br>Pixel 10 128GB：1円/月×12（MNP）<br>Pixel 10a 128GB：1円/月×24（MNP/UPG/新規）<br>Pixel 9a 128GB：1円×24（MNP/UPG/新規・特典利用料なし）<br>Xperia 1Ⅷ 256GB：3,793円/月×12（MNP）<br>Xperia 10Ⅷ 128GB：410円/月×24（MNP）</div>'
+    + '<div class="saku" style="border-left:3px solid var(--ym)"><b style="color:var(--ym)">Y!mobile SIM単体施策</b><br><b>MNP：20,000pt or ▲22,000円</b>（データ増量OP必須）<br>同一名義の2回線目以降も20,000pt適用可<br>─<br><b>新規 U18（使用者登録）：15,000pt</b><br>1名義につき1適用・2回線目以降は異名義登録必須<br>─<br><b>新規 O19：10,000pt or ▲11,000円</b><br>クレジットカード必須・同日MNP同名義は不可（異名義可）<br>─<br><b>おうち割施策（シンプル3 M/L）：▲16,500円値引き or PayPay15,000pt付与</b><br>1使用者1還元・端末購入でも適用可・開通6か月以内</div>'
+    + '<div class="saku" style="border-left:3px solid var(--sb)"><b style="color:var(--sb)">SoftBank SIM単体施策</b><br><b>MNP/UPG（テイガク/ペイトク2）：10,000pt or ▲11,000円</b><br>─<br><b>おうち割施策（ペイトク2/テイガク無制限）：▲16,500円値引き or 15,000pt</b><br>1使用者1還元・端末購入でも適用可・開通6か月以内<br>同日MNP同名義は不可（異名義可）</div>'
+    + '<div class="saku"><b>固定回線施策（共通）</b><br>SoftBank Air：<b>▲60,500円</b><br>SB光 KD20：▲22,000円 / KD30：▲33,000円</div>'
+    + '<div class="saku"><b>おうち割光セット（共通）</b><br>月額セット割は<b>対象プランの各回線に1つずつ</b>適用（家族全回線OK）<br>PayPayは開通月を1か月目として3か月目末日に付与<br>※同日MNP同名義は対象外（異名義は可）<br>※NURO光は固定電話（NURO光でんわ）込みなら対象</div>'
+    + '<div class="saku" style="border-left:3px solid var(--warn);background:#fffbea"><b>⚠ データ増量OP（YM契約時は必須）</b><br>SIM単体MNPだけでなく、<b>端末特典利用時にも増量OPはつける必要がある</b>。CB（キャッシュバック）を受け取るための必須オプション。入り口には必要だが<b>半年間は無料</b>のため、<b>半年以内にMy Y!mobileからオプションを解約して料金がかからないようにする提案をすること</b></div>'
+    + '<div class="saku" style="border-left:3px solid var(--warn);background:#fffbea"><b>⚠ Y!mobile 端末施策の共通注意</b><br>すべて利用料なし。<b>故障安心補償パック（880円）への加入が必須</b>条件として追加された（最新施策）</div>'
+  
+  sb.innerHTML = html;
+  sb.querySelectorAll('.cbtn').forEach(function(b){
+    b.addEventListener('click', function(){
+      selectCase(parseInt(b.getAttribute('data-i'), 10));
+    });
+  });
+}
+
+/* ============ 保存・読み込み ============ */
+function collect(){
+  var c = CASES[cur];
+  var blocks = [];
+  var n = c.phones.length;
+  for(var i=0;i<=n;i++){
+    var b = {
+      plan: val('f'+i+'_plan'),
+      base: val('f'+i+'_base'),
+      min:  val('f'+i+'_min'),
+      mustop: val('f'+i+'_mustop')
+    };
+    if(i===n){
+      b.how = val('f'+i+'_how');
+      b.kouji = val('f'+i+'_kouji'); b.koujifee = val('f'+i+'_koujifee'); b.koujitype = val('f'+i+'_koujitype');
+      b.hoten = val('f'+i+'_hoten');
+      b.sakusel = val('f'+i+'_sakusel'); b.cbfee = val('f'+i+'_cbfee');
+    } else {
+      b.disc = val('f'+i+'_disc');
+      b.callop = val('f'+i+'_callop'); b.callfee = val('f'+i+'_callfee');
+      b.card = val('f'+i+'_card'); b.cardreason = val('f'+i+'_cardreason');
+      b.cardfee = val('f'+i+'_cardfee'); b.cardmob = val('f'+i+'_cardmob'); b.cardhikari = val('f'+i+'_cardhikari');
+      b.saku = val('f'+i+'_saku');
+    }
+    blocks.push(b);
+  }
+  return { blocks: blocks, reason: val('f_reason'), cbtotal: val('f_cbtotal'), quiz: curQuiz.slice(), _touched: true, _time: new Date().toLocaleString('ja-JP') };
+}
+function val(id){ var e = document.getElementById(id); return e ? e.value : ''; }
+
+function scheduleSave(){
+  clearTimeout(saveTimer);
+  setStatus('未保存の変更あり…', false);
+  saveTimer = setTimeout(doSave, 900);
+}
+
+function doSave(){
+  var data = collect();
+  memCache[cur] = data;
+  if(storageOK){
+    window.storage.set('kaitou:case' + cur, JSON.stringify(data)).then(function(){
+      setStatus('保存済み ' + data._time, true);
+      refreshSidebarDone();
+    }).catch(function(){
+      setStatus('保存済み（このセッション内のみ）', true);
+      refreshSidebarDone();
+    });
+  } else {
+    setStatus('保存済み（このセッション内のみ）', true);
+    refreshSidebarDone();
+  }
+}
+
+function loadCase(i){
+  return new Promise(function(resolve){
+    if(memCache[i]){ resolve(memCache[i]); return; }
+    if(!storageOK){ resolve(null); return; }
+    window.storage.get('kaitou:case' + i).then(function(r){
+      try {
+        var d = JSON.parse(r.value);
+        memCache[i] = d;
+        resolve(d);
+      } catch(e){ resolve(null); }
+    }).catch(function(){ resolve(null); });
+  });
+}
+
+function setStatus(msg, ok){
+  var el = document.getElementById('savestat');
+  if(el){ el.textContent = msg; el.className = 'savestat' + (ok ? ' ok' : ''); }
+}
+
+function refreshSidebarDone(){
+  var btns = document.querySelectorAll('.cbtn');
+  btns.forEach(function(b){
+    var i = parseInt(b.getAttribute('data-i'), 10);
+    var has = b.querySelector('.done');
+    if(memCache[i] && memCache[i]._touched && !has){
+      var s = document.createElement('span');
+      s.className = 'done'; s.textContent = ' ●保存済';
+      var small = b.querySelector('small');
+      b.insertBefore(s, small);
+    }
+  });
+}
+
+/* ============ メイン描画 ============ */
+function selectCase(i){
+  if(cur >= 0 && document.getElementById('f0_plan')){
+    memCache[cur] = collect();
+  }
+  cur = i;
+  buildSidebar();
+  loadCase(i).then(function(saved){
+    buildMain(saved);
+    window.scrollTo(0, 0);
+  });
+}
+
+function dotCls(v){ return v===true ? 'd-ok' : v===false ? 'd-ng' : 'd-q'; }
+function dotMark(v){ return v===true ? '○' : v===false ? '×' : v; }
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function selHTML(id, opts, sel){
+  var h = '<select id="' + id + '">';
+  opts.forEach(function(o){
+    h += '<option' + (o===sel ? ' selected' : '') + '>' + o + '</option>';
+  });
+  return h + '</select>';
+}
+
+function quizHTML(saved){
+  curQuiz = (saved || []).slice();
+  var h = '';
+  getQuizData(cur).forEach(function(item, i){
+    var sel = curQuiz[i];
+    var res = '';
+    if(sel === 'o' || sel === 'x'){
+      var correct = (sel === 'o') === item.a;
+      res = '<div class="qres ' + (correct ? 'qok' : 'qng') + '">' + (correct ? '○ 正解！' : '× 不正解…') + ' ' + item.exp + '</div>';
+    }
+    h += '<div class="qitem"><div class="qtext">Q' + (i+1) + '. ' + item.q + '</div>'
+      + '<div class="qbtns">'
+      + '<button type="button" class="qbtn' + (sel==='o'?' qsel':'') + '" data-q="' + i + '" data-v="o">○</button>'
+      + '<button type="button" class="qbtn' + (sel==='x'?' qsel':'') + '" data-q="' + i + '" data-v="x">×</button>'
+      + '</div><div id="qres' + i + '">' + res + '</div></div>';
+  });
+  return h;
+}
+
+function bindQuiz(){
+  document.querySelectorAll('.qbtn').forEach(function(b){
+    b.addEventListener('click', function(){
+      var i = parseInt(b.getAttribute('data-q'), 10);
+      var v = b.getAttribute('data-v');
+      curQuiz[i] = v;
+      var item = getQuizData(cur)[i];
+      var correct = (v === 'o') === item.a;
+      var res = document.getElementById('qres' + i);
+      if(res) res.innerHTML = '<div class="qres ' + (correct ? 'qok' : 'qng') + '">' + (correct ? '○ 正解！' : '× 不正解…') + ' ' + item.exp + '</div>';
+      b.parentElement.querySelectorAll('.qbtn').forEach(function(x){ x.classList.remove('qsel'); });
+      b.classList.add('qsel');
+      scheduleSave();
+    });
+  });
+}
+
+function blockHTML(i, label, isNet, d){
+  d = d || {};
+  var h = '<div class="fblock"><div class="fblock-title">' + label + '</div>';
+  if(isNet){
+    h += '<div class="fl">プラン（選択）</div>' + selHTML('f'+i+'_plan', NET_OPTS, d.plan);
+    h += '<div class="fl">変更方法</div>' + selHTML('f'+i+'_how', HOW_OPTS, d.how);
+    h += '<div class="fl">基本料金（円）</div><div class="yen"><input type="number" id="f'+i+'_base" placeholder="" value="' + esc(d.base) + '"><span>円</span></div>';
+    h += '<div class="fl">月額料金（円）＝実際の支払額</div><div class="yen"><input type="number" id="f'+i+'_min" placeholder="" value="' + esc(d.min) + '"><span>円</span></div>';
+    h += '<div id="f'+i+'_netwarn" style="display:none;color:var(--ng);font-size:11px;margin-top:4px;line-height:1.5"></div>';
+    h += '<div class="fl">工事有無</div>' + selHTML('f'+i+'_kouji', KOUJI_OPTS, d.kouji);
+    h += '<div id="f'+i+'_koujifee_w" style="display:none"><div class="fl">工事費の金額（円）</div><div class="yen"><input type="number" id="f'+i+'_koujifee" placeholder="" value="' + esc(d.koujifee) + '"><span>円</span></div></div>';
+    h += '<div id="f'+i+'_koujitype_w" style="display:none"><div class="fl">工事なしの種別</div>' + selHTML('f'+i+'_koujitype', KOUJITYPE_OPTS, d.koujitype) + '</div>';
+    h += '<div class="fl">解約金補填の有無</div>' + selHTML('f'+i+'_hoten', HOTEN_OPTS, d.hoten);
+    h += '<div class="fl">施策</div>' + selHTML('f'+i+'_sakusel', NETSAKU_OPTS, d.sakusel);
+    h += '<div id="f'+i+'_cbfee_w" style="display:none"><div class="fl">CBの金額（円）</div><div class="yen"><input type="number" id="f'+i+'_cbfee" placeholder="" value="' + esc(d.cbfee) + '"><span>円</span></div></div>';
+    return h + '</div>';
+  }
+  h += '<div class="fl">プラン・GB数（選択）</div>' + selHTML('f'+i+'_plan', PLAN_OPTS, d.plan);
+  h += '<div class="fl">基本料金（円）</div><div class="yen"><input type="number" id="f'+i+'_base" placeholder="" value="' + esc(d.base) + '"><span>円</span></div>';
+  h += '<div class="fl">この想定での最安値（円）</div><div class="yen"><input type="number" id="f'+i+'_min" placeholder="" value="' + esc(d.min) + '"><span>円</span></div>';
+  h += '<div class="fl">割引の種類と金額</div><input type="text" id="f'+i+'_disc" placeholder="例: おうち割▲1,650＋カード割▲330" value="' + esc(d.disc) + '">';
+  h += '<div class="fl">電話オプション</div>' + selHTML('f'+i+'_callop', CALL_OPTS, d.callop);
+  h += '<div class="fl">電話オプション金額（円）</div><div class="yen"><input type="number" id="f'+i+'_callfee" placeholder="" value="' + esc(d.callfee) + '"><span>円</span></div>';
+  h += '<div class="fl">PayPayカード</div>' + selHTML('f'+i+'_card', CARD_OPTS, d.card);
+  h += '<div id="f'+i+'_cardreason_w" style="display:none"><div class="fl">つけない理由</div><input type="text" id="f'+i+'_cardreason" placeholder="" value="' + esc(d.cardreason) + '"></div>';
+  h += '<div id="f'+i+'_cardnum_w" style="display:none">'
+    + '<div class="fl">カード割引額（円/月）</div><div class="yen"><input type="number" id="f'+i+'_cardfee" placeholder="" value="' + esc(d.cardfee) + '"><span>円</span></div>'
+    + '<div class="fl">モバイル支払いの還元率（%）</div><div class="yen"><input type="number" step="0.1" id="f'+i+'_cardmob" placeholder="" value="' + esc(d.cardmob) + '"><span>%</span></div>'
+    + '<div class="fl">光（固定回線）支払いの還元率（%）</div><div class="yen"><input type="number" step="0.1" id="f'+i+'_cardhikari" placeholder="" value="' + esc(d.cardhikari) + '"><span>%</span></div>'
+    + '</div>';
+  h += '<div class="fl">施策・CB額</div><input type="text" id="f'+i+'_saku" placeholder="" value="' + esc(d.saku) + '">';
+  h += '<div class="fl">必須オプション・注意事項</div><input type="text" id="f'+i+'_mustop" placeholder="" value="' + esc(d.mustop) + '">';
+  return h + '</div>';
+}
+
+function buildMain(saved){
+  var c = getCaseData(cur);
+  var d = saved || { blocks: [], reason: '' };
+
+  var phones = '';
+  c.phones.forEach(function(p){
+    phones += '<div class="card">'
+      + '<span class="tag ' + p.tag + '">' + p.label + '</span>'
+      + '<div class="who">' + p.who + '</div>'
+      + '<div class="row"><span class="rk">プラン</span><span class="rv">' + p.plan + '</span></div>'
+      + '<div class="row"><span class="rk">利用量</span><span class="rv">' + p.usage + '</span></div>'
+      + '<div class="row"><span class="rk">月額</span><span class="rv">' + p.fee + '</span></div>'
+      + '<div class="row"><span class="rk">端末代</span><span class="rv">' + p.dfee + '</span></div>'
+      + '<div class="sub">' + p.device + '</div></div>';
+  });
+  phones += '<div class="card"><span class="tag t-net">自宅回線</span>'
+    + '<div class="row"><span class="rk">回線名</span><span class="rv" style="font-size:11px">' + c.net.name + '</span></div>'
+    + '<div class="row"><span class="rk">種別</span><span class="rv">' + c.net.type + '</span></div>'
+    + '<div class="row"><span class="rk">速度</span><span class="rv">' + c.net.speed + '</span></div>'
+    + '<div class="row"><span class="rk">月額料金</span><span class="rv">' + c.net.fee + '</span></div>'
+    + '<div class="row"><span class="rk">固定電話</span><span class="rv">' + c.net.tel + '</span></div>'
+    + '<div class="row"><span class="rk">テレビ</span><span class="rv">' + c.net.tv + '</span></div>'
+    + '<div class="row"><span class="rk">工事費</span><span class="rv">' + c.net.cost + '</span></div>'
+    + '<div class="row"><span class="rk">残債</span><span class="rv" style="font-size:11px">' + c.net.debt + '</span></div>'
+    + '<div class="sub">備考：' + c.net.note + '</div></div>';
+
+  var area = '<div class="agrid">';
+  c.area.forEach(function(a){
+    area += '<div class="aitem"><span class="dot ' + dotCls(a[0]) + '"></span>' + a[1] + '：' + dotMark(a[0]) + '</div>';
+  });
+  area += '</div>';
+
+  // 回答フォームブロック
+  var form = '';
+  c.phones.forEach(function(p, i){
+    var marks = ['①','②','③'];
+    form += blockHTML(i, marks[i] + ' ' + p.who, false, d.blocks[i]);
+  });
+  form += blockHTML(c.phones.length, '④ 固定回線', true, d.blocks[c.phones.length]);
+
+  var opened = !!showAns[cur];
+
+  document.getElementById('main').innerHTML =
+    '<div class="case-title">' + c.title + '</div>'
+    + '<h2 class="sec">現状のスマホ・回線</h2>'
+    + '<div class="grid">' + phones + '</div>'
+    + '<div class="inforow">'
+    + '<div class="sbox warn" style="flex:2"><div class="stitle">🔒 特記・制約事項</div><div class="sbody">' + c.special + '</div></div>'
+    + '<div class="sbox"><div class="stitle">📍 エリア検索結果</div>' + area + '</div>'
+    + '</div>'
+    + (getDecisionLog(cur) ? '<div class="sbox" style="margin-bottom:1.25rem"><div class="stitle">🗒 過去の意思決定</div><div class="sbody" style="white-space:pre-wrap">' + esc(getDecisionLog(cur)) + '</div></div>' : '')
+    + '<div class="azone">'
+    + '<div class="ahead"><span class="ahtitle">✏️ 受講者回答欄</span><div class="btns">'
+    + '<span class="savestat" id="savestat">' + (saved && saved._time ? '保存済み ' + saved._time : '未入力') + '</span>'
+    + '<button class="ghost" id="savebtn">保存</button>'
+    + '<button class="act" id="ansbtn">' + (opened ? '解答を隠す' : '解答を見る') + '</button>'
+    + '</div></div>'
+    + '<div class="formgrid">' + form + '</div>'
+    + '<div class="reasonarea" style="border-bottom:1px solid var(--line)"><div class="memlabel">注意事項クイズ（○か×で答える）</div><div id="quizwrap">' + quizHTML(d.quiz) + '</div></div>'
+    + '<div class="reasonarea"><div class="memlabel">CB・還元の合計金額（円）</div>'
+    + '<div class="yen" style="max-width:240px;margin-bottom:12px"><input type="number" id="f_cbtotal" placeholder="" value="' + esc(d.cbtotal) + '"><span>円</span></div>'
+    + '<div class="memlabel">提案理由・パターンメモ</div>'
+    + '<textarea id="f_reason" placeholder="この提案にした理由・別パターンの検討など">' + esc(d.reason) + '</textarea></div>'
+    + '<div class="ansarea" id="ansarea" style="display:' + (opened ? 'block' : 'none') + '">'
+    + '<div class="anslabel">✅ 模範解答（複数パターン）</div>'
+    + '<div class="ansbody">' + renderAnswerHTML(cur) + '</div></div>'
+    + '</div>'
+    + '<div class="hint">入力は自動保存されます（手動「保存」も可）。まず自分で記入→「解答を見る」で答え合わせ</div>';
+
+  document.getElementById('ansbtn').addEventListener('click', function(){
+    memCache[cur] = collect();
+    showAns[cur] = !showAns[cur];
+    buildMain(memCache[cur]);
+  });
+  document.getElementById('savebtn').addEventListener('click', doSave);
+
+  document.querySelectorAll('#main select, #main input, #main textarea').forEach(function(el){
+    el.addEventListener('input', scheduleSave);
+    el.addEventListener('change', scheduleSave);
+  });
+
+  c.phones.forEach(function(_, i){
+    var sel = document.getElementById('f'+i+'_card');
+    if(sel){
+      sel.addEventListener('change', function(){ updateCardFields(i); });
+      updateCardFields(i);
+    }
+  });
+
+  var n = c.phones.length;
+  ['_plan','_base','_min'].forEach(function(suf){
+    var el = document.getElementById('f'+n+suf);
+    if(el){
+      el.addEventListener('input', function(){ checkNetFee(n); });
+      el.addEventListener('change', function(){ checkNetFee(n); });
+    }
+  });
+  checkNetFee(n);
+  ['_sakusel','_kouji'].forEach(function(suf){
+    var el = document.getElementById('f'+n+suf);
+    if(el){ el.addEventListener('change', function(){ updateNetFields(n); }); }
+  });
+  updateNetFields(n);
+  bindQuiz();
+}
+
+function updateCardFields(i){
+  var v = val('f'+i+'_card');
+  var rw = document.getElementById('f'+i+'_cardreason_w');
+  var nw = document.getElementById('f'+i+'_cardnum_w');
+  if(rw) rw.style.display = (v === 'つけない') ? 'block' : 'none';
+  if(nw) nw.style.display = (v === 'PayPayカード ノーマル' || v === 'PayPayカード ゴールド') ? 'block' : 'none';
+}
+
+function updateNetFields(n){
+  var saku = val('f'+n+'_sakusel');
+  var kouji = val('f'+n+'_kouji');
+  var cbw = document.getElementById('f'+n+'_cbfee_w');
+  var kfw = document.getElementById('f'+n+'_koujifee_w');
+  var ktw = document.getElementById('f'+n+'_koujitype_w');
+  if(cbw) cbw.style.display = (saku === 'KD20' || saku === 'KD30') ? 'block' : 'none';
+  if(kfw) kfw.style.display = (kouji === '工事あり') ? 'block' : 'none';
+  if(ktw) ktw.style.display = (kouji === '工事なし') ? 'block' : 'none';
+}
+
+function checkNetFee(n){
+  var plan = val('f'+n+'_plan');
+  var base = parseInt(val('f'+n+'_base'), 10);
+  var fee  = parseInt(val('f'+n+'_min'), 10);
+  var w = document.getElementById('f'+n+'_netwarn');
+  if(!w) return;
+  if(plan.indexOf('SoftBank光') === 0 && !isNaN(base) && !isNaN(fee)){
+    if(fee !== base + 550){
+      w.style.display = 'block';
+      w.innerHTML = '⚠ <b>光は月額＝基本料金＋550円</b>（オプションパック：光BBユニット＋Wi-Fiマルチパック＋光電話。携帯がSB/YMだと3点セット550円）。' + (base+550) + '円になっているか確認！';
+    } else {
+      w.style.display = 'block';
+      w.style.color = 'var(--ok)';
+      w.innerHTML = '✓ 基本料金＋オプションパック550円 OK';
+      return;
+    }
+    w.style.color = 'var(--ng)';
+  } else {
+    w.style.display = 'none';
+  }
+}
+
+/* ============ AI質問（補助） ============ */
+/* ============ 解答編集モーダル ============ */
+var editCase = 0;
+var editedAnsData = {};   // i -> {patterns:[...]} の形式で管理
+
+function getCaseData(i){ return editedCases[i] !== undefined ? editedCases[i] : CASES[i]; }
+function getQuizData(i){
+  var idx = (i !== undefined) ? i : cur;
+  if(editedQuiz && editedQuiz[idx] !== undefined) return editedQuiz[idx];
+  return QUIZ_PER_CASE[idx] || [];
+}
+function getDecisionLog(i){ var cd = getCaseData(i); return (cd && cd.decisionLog) ? cd.decisionLog : ''; }
+function getAnsPatterns(i){ return (editedAnsData[i] !== undefined ? editedAnsData[i] : ANS_DATA[i]).patterns; }
+function renderAnswerHTML(i){
+  var patterns = getAnsPatterns(i);
+  var cas = getCaseData(i);
+  var marks = ['①','②','③'];
+  var html = '';
+  patterns.forEach(function(pat, pi){
+    html += '<h3 style="margin-top:'+(pi===0?'0':'20px')+'">'+esc(pat.title)+'</h3>';
+    if(pat.reason) html += '<div class="reason-box" style="margin-bottom:10px"><b>提案理由</b> '+pat.reason+'</div>';
+    html += '<table><tr><th></th><th>プラン・GB数</th><th>最安値/基本料金</th><th>割引内訳</th><th>施策・CB・端末</th></tr>';
+    pat.phones.forEach(function(ph, j){
+      var who = cas.phones[j] ? cas.phones[j].who : marks[j];
+      html += '<tr><td><b>'+esc(who)+'</b></td><td>'+esc(ph.plan)+'</td><td>'+esc(ph.min)+'</td><td>'+esc(ph.disc)+'</td><td>'+esc(ph.saku)+'</td></tr>';
+    });
+    html += '<tr><td><b>④固定回線</b></td><td>'+esc(pat.net.plan)+'</td><td>'+esc(pat.net.fee)+'</td><td>'+esc(pat.net.how)+'</td><td>'+esc(pat.net.saku)+'</td></tr>';
+    html += '</table>';
+    if(pat.points){
+      html += '<div class="point"><b>このケースの判断ポイント</b><br>'+pat.points.split('\n').join('<br>')+'</div>';
+    }
+  });
+  return html;
+}
+
+function loadAllEdits(){
+  // ストレージは使わず、起動時にJSONファイルをインポートした場合のみ反映される
+  return Promise.resolve();
+}
+
+var editSubTab = 'answer'; // 'answer' | 'customer' | 'quiz'
+var editedCases = {};   // i -> {phones, net, special, area}
+var editedQuiz = {};   // {caseIndex: [...questions]} の形式
+
+// 配布用ビルド時にここへJSONを埋め込むと、開いた瞬間から反映される
+var EMBEDDED_EDITS = {
+  "ansData": {
+    "0": {
+      "patterns": [
+        {
+          "title": "パターンA：父・母も端末ごと乗り換え（1円端末＋おうち割フル活用）",
+          "reason": "NURO光は固定電話（NURO光でんわ）込みのためおうち割光セット対象。おうち割セット割（▲1,650円）が父・母・子の各回線につく。子は返却P 12か月目のためSIMのみ一択。父はバッテリー78%で劣化目安を超えており端末更新を訴求。タイミングを一緒にするために母親の5年以上使用の端末更新も訴求。おうち割光セットの適用でキャッシュバックはペイペイポイントのみ。即日付与が不可のため2週間以内の付与であること案内必須。",
+          "phones": [
+            {
+              "plan": "YM シンプル3 S（5GB）※初月M→S",
+              "min": "858円/3,278円",
+              "disc": "おうち割光セット(A)▲1,650円＋PayPayゴールドカード割▲770円",
+              "saku": "iPhone17e 1円/月×24（MNP・特典利用料なし）＋おうち割光セット15,000PayPayポイント（M/L対象・1使用者1還元）・初月故障安心補償パック880円必須・初月データ増量OP必須"
+            },
+            {
+              "plan": "YM シンプル3 S（5GB）※初月M→S",
+              "min": "858円/3,278円",
+              "disc": "おうち割光セット(A)▲1,650円＋PayPayゴールドカード割▲770円",
+              "saku": "GooglePixel10a 1円/月×24（MNP・特典利用料なし）＋おうち割光セット15,000PayPayポイント（M/L対象・1使用者1還元）・初月故障安心補償パック880円必須・初月データ増量OP必須"
+            },
+            {
+              "plan": "YM シンプル3 M（30GB）",
+              "min": "1,958円/4,378円",
+              "disc": "おうち割光セット(A)▲1,650円＋PayPayカード割▲770円",
+              "saku": "YM MNP SIMのみCB 22000円値引or20000pt(量販店のポイント)＋PayPay15,000pt（M/L対象・1使用者1還元）・初月データ増量OP必須"
+            }
+          ],
+          "net": {
+            "plan": "NURO光 維持＋おうち割光セット申込",
+            "fee": "6,600円（変更なし）",
+            "how": "変更なし",
+            "saku": "なし"
+          },
+          "points": "・子＝SIMのみ一択（返却P12か月目・返却しても残債は消えない・24か月支払い必須）\n・NURO光は固定電話込みのためおうち割光セット対象→回線を動かさず家族全員に月額セット割\n・おうち割と家族割は併用不可→おうち割優先が正解\n・dカードシルバー利用中→PayPayゴールドカード新規発行を提案（毎月▲770円割引。年会費11,000円の説明必須。モバイル1％還元。）\n・父のバッテリー78%は劣化目安（85%以下）→端末更新の訴求機会\n・母の端末は発売年度としてはかなり古い機種であり、５G非対応なこともあり端末訴求が吉。"
+        },
+        {
+          "title": "パターンB：全員SIMのみ＋CB最大化（端末は持ち込み）",
+          "reason": "端末を一切動かさずMNP施策のCBを最大化するパターン。父・母はSIM単体MNP。子もSIMのみ（返却P12か月目のため端末乗り換え不可）。着地SでもSIM単体MNP施策のため入り口はM/Lで契約し翌日以降Sへ変更案内。",
+          "phones": [
+            {
+              "plan": "YM シンプル3 S（5GB）※初月M→S",
+              "min": "858円/3,278円",
+              "disc": "おうち割光セット(A)▲1,650円＋PayPayゴールドカード割▲770円",
+              "saku": "YM MNP SIMのみCB 22000円値引or20000pt(量販店のポイント)＋おうち割光セット15,000PayPayポイント（M/L対象・1使用者1還元）・初月データ増量OP必須"
+            },
+            {
+              "plan": "YM シンプル3 S（5GB）※初月M→S",
+              "min": "858円/3,278円",
+              "disc": "おうち割光セット(A)▲1,650円＋PayPayゴールドカード割▲770円",
+              "saku": "YM MNP SIMのみCB 22000円値引or20000pt(量販店のポイント)＋おうち割光セット15,000PayPayポイント（M/L対象・1使用者1還元）・初月データ増量OP必須"
+            },
+            {
+              "plan": "YM シンプル3 M（30GB）",
+              "min": "1,958円/4,378円",
+              "disc": "おうち割光セット(A)▲1,650円＋PayPayゴールドカード割▲770円",
+              "saku": "YM MNP SIMのみCB 22000円値引or20000pt(量販店のポイント)＋おうち割光セット15,000PayPayポイント（M/L対象・1使用者1還元）・初月データ増量OP必須"
+            }
+          ],
+          "net": {
+            "plan": "NURO光 維持＋おうち割光セット申込",
+            "fee": "6,600円（変更なし）",
+            "how": "変更なし",
+            "saku": "なし"
+          },
+          "points": "・CB総額111,000円(22,000円値引×3回線分+15,000ペイペイポイント×3回線分)\n・SIM単体MNPはデータ増量OP（550円/月）が条件→着地SでもM/Lで入って翌日Sへ変更案内（施策条件を守りつつ最安着地）\n・iPhone14・15はSIMフリー。sense4は2020年キャリア購入→SIMロック解除確認必須。解除作業も必須。\n・ゴールドカードの年会費の説明必須。"
+        },
+        {
+          "title": "パターンC：高得点狙いのSoftbankでの父母端末訴求。",
+          "reason": "・家電量販店は予算目標のうちSoftbankの端末に比重が高い。なるべくSoftbankで訴求してといわれることもある。\n・22,000円の特典利用料の説明必須。",
+          "phones": [
+            {
+              "plan": "SB ペイトク2 無制限",
+              "min": "8,228円/10,538円",
+              "disc": "おうち割光セット▲1,110円＋PayPayゴールドカード割▲550円+家族割2回線▲660円",
+              "saku": "iPhone17 1円/月×24（MNP・特典利用料あり）＋おうち割光セット15,000PayPayポイント（ペイトク2 テイガク対象・1使用者1還元）"
+            },
+            {
+              "plan": "SB ペイトク2 無制限",
+              "min": "8,228円/10,538円",
+              "disc": "おうち割光セット▲1,110円＋PayPayゴールドカード割▲550円+家族割2回線▲660円",
+              "saku": "GooglePixel10a 1円/月×24（MNP・特典利用料あり）＋おうち割光セット15,000PayPayポイント（ペイトク2 テイガク対象・1使用者1還元）"
+            },
+            {
+              "plan": "YM シンプル3 M（30GB）",
+              "min": "1,958円/4,378円",
+              "disc": "おうち割光セット(A)▲1,650円＋PayPayゴールドカード割▲770円",
+              "saku": "YM MNP SIMのみCB 22000円値引or20000pt(量販店のポイント)＋おうち割光セット15,000PayPayポイント（M/L対象・1使用者1還元）・初月データ増量OP必須"
+            }
+          ],
+          "net": {
+            "plan": "NURO光 維持＋おうち割光セット申込",
+            "fee": "6,600円（変更なし）",
+            "how": "変更なし",
+            "saku": "なし"
+          },
+          "points": "・家電量販店は予算目標のうちSoftbankの端末に比重が高い。なるべくSoftbankで訴求してといわれることもある。\n・22,000円の特典利用料の説明必須。\n・AQUOSsenseシリーズのため同等もしくはそれ以上の端末で訴求。\n・ペイペイカードゴールドの4000ptの還元はメインカードのみかつ1アカウントのみのため支払いを一緒にする場合は父のみ条件を満たして付与される。"
+        }
+      ]
+    },
+    "1": {
+      "patterns": [
+        {
+          "title": "パターンA：SoftBank無制限＋SB光1G（端末返却→新端末）",
+          "reason": "父子は22か月目で返却＋新端末の一択。SBペイトク2で無制限を確保。auひかり違約金・残債はあんしん乗り換えで全額補填できることを先に伝えて障壁を解消。Netflixパック特典終了の移行説明が必須。\nauのメアドの引継ぎは可能。月330円の支払いをauにする必要がありクレカのみ登録が可能。引継の有無と月額料金の発生を必ず説明すること。",
+          "phones": [
+            {
+              "plan": "SB ペイトク2（無制限）",
+              "min": "8,228円/10,538円",
+              "disc": "おうち割光セット▲1,110円＋PayPayゴールドカード割▲550円+家族割2回線▲660円",
+              "saku": "GalaxyS26 1円/月×24（MNP・特典利用料あり）＋おうち割光セット15,000pt or 16,500円値引（ペイトク2 テイガク対象・1使用者1還元）"
+            },
+            {
+              "plan": "YM シンプル3S 5GB＋10分かけ放題　※初月M→S",
+              "min": "1,738円(858+880)/3,278円",
+              "disc": "おうち割光セット(A)▲1,650円＋PayPayゴールドカード割▲770円",
+              "saku": "YM MNP SIMのみCB 22000円値引or20000pt(量販店のポイント)＋おうち割光セット15,000pt or 16,500円値引（M/L対象・1使用者1還元）・初月データ増量OP必須"
+            },
+            {
+              "plan": "SB ペイトク2（無制限）",
+              "min": "8,228円/10,538円",
+              "disc": "おうち割光セット▲1,110円＋PayPayゴールドカード割▲550円+家族割2回線▲660円",
+              "saku": "iPhone17 1円/月×24（MNP・特典利用料あり）＋おうち割光セット15,000pt or 16,500円値引（ペイトク2 テイガク対象・1使用者1還元）"
+            }
+          ],
+          "net": {
+            "plan": "SB光 1ギガ",
+            "fee": "5720円＋550円（オプションパック）＝6,270円",
+            "how": "解約新規",
+            "saku": "KD30▲33,000円＋あんしん乗り換え（最大10万円）でauひかり違約金＋残債20,625円を全額補填。補填はお客様が先払い後に証明書アップロード→普通為替で受け取り（SBが直接払うわけではない）"
+          },
+          "points": "・22か月目端末＝返却＋新端末の一択（残り2回分の支払いは発生と事前説明）返却方法は2択。説明必須。\n・あんしん乗り換えはキャッシュバック（普通為替）方式→お客様が先払い・証明書アップロード後に受け取り\n・⚠Netflixパック2(P)終了→Netflix支払い方法再登録・Amazonプライム別途契約（Netflix月890円 Amazon月600円）が必要\n・父の現状6,556円（基本9,086円-家族割▲1,210円-スマバリ▲1,100円-カード割▲220円）にNetflix・Amazonプライム含む→SB移行後と総額比較で正直に説明\n・母の@ezweb.comメアド消滅を乗り換え前に案内→Gmail移行を提案して抵抗を軽減\n・解約新規のため、工事が発生。工事の内容、工事費の実質相殺とauひかりの解約金負担の説明。\n・ペイペイカードゴールドの4000ptの還元はメインカードのみかつ1アカウントのみのため支払いを一緒にする場合は父のみ条件を満たして付与される。"
+        },
+        {
+          "title": "パターンB：子どものデュアル提案",
+          "reason": "子の60GBはYMでは不足するため、シンプル3 M×2回線で30+30GBの追加SIMで解決する2案を提示する。\n父は返却かつGalaxyのSシリーズを使用しているためYmに適切な端末はない。SB一択。",
+          "phones": [
+            {
+              "plan": "SB ペイトク2（無制限）",
+              "min": "8,888円/10,538円",
+              "disc": "おうち割光セット▲1,110円＋PayPayゴールドカード割▲550円",
+              "saku": "GalaxyS26 1円/月×24（MNP・特典利用料あり）＋おうち割光セット15,000pt or 16,500円値引（ペイトク2 テイガク対象・1使用者1還元）"
+            },
+            {
+              "plan": "YM シンプル3S 5GB＋10分かけ放題　※初月M→S",
+              "min": "1,738円(858+880)/3,278円",
+              "disc": "おうち割光セット(A)▲1,650円＋PayPayゴールドカード割▲770円",
+              "saku": "YM MNP SIMのみCB 22000円値引or20000pt(量販店のポイント)＋おうち割光セット15,000pt or 16,500円値引（M/L対象・1使用者1還元）・初月データ増量OP必須"
+            },
+            {
+              "plan": "YM シンプル3M×2回線(MNPと新規)",
+              "min": "3,916円(1,958円×2)/4,378円×2回線",
+              "disc": "おうち割光セット(A)▲1,650円＋PayPayゴールドカード割▲770円",
+              "saku": "iPhone16 402円/月×24（MNP・特典利用料なし）＋おうち割光セット15,000pt or 16,500円値引(新規の回線にはつかない)＋O19YM SIM 新規 10,000pt or 11,000円値引・初月故障安心補償パック880円必須・初月データ増量OP必須"
+            }
+          ],
+          "net": {
+            "plan": "SB光 1ギガ（解約新規）",
+            "fee": "5720円＋550円（オプションパック）＝6,270円",
+            "how": "解約新規",
+            "saku": "KD30▲33,000円＋あんしん乗り換えで違約金・残債補填"
+          },
+          "points": "・ギガ不足は「無制限」だけでなく30+30GBの2回線追加でも解決できる（O19施策10,000pt）\n・母の通話定額ライト2は5分かけ放題のOPのため、YMで同額で10分かけ放題をつける。\n・@ezweb.comメアド消滅→月330円で引継可能。\n・auPAYカードゴールド特典消滅→PayPayカードゴールドへの切替対案提示"
+        },
+        {
+          "title": "パターンC：端末を全員変えてSoftbankでまとめる提案",
+          "reason": "父子の端末は22か月目で返却＋新端末の一択が基本だが、母も3年前の機種ではあるため端末提案でミニフィット2移行。",
+          "phones": [
+            {
+              "plan": "SB ペイトク2（無制限）",
+              "min": "7,678円/10,538円",
+              "disc": "おうち割光セット▲1,110円＋PayPayゴールドカード割▲550円+家族割3回線▲1,210円",
+              "saku": "GalaxyS26 1円/月×24（MNP・特典利用料あり）＋おうち割光セット15,000pt or 16,500円値引（ペイトク2 テイガク対象・1使用者1還元）"
+            },
+            {
+              "plan": "SB ミニフィット2 5GB 　※初月ペイトク2→ミニフィット2",
+              "min": "3,498円/6,358円",
+              "disc": "おうち割光セット▲1,110円＋PayPayゴールドカード割▲550円+家族割3回線▲1,210円",
+              "saku": "Xperia 10 Ⅷ 410円/月×24（MNP・特典利用料あり）＋おうち割光セット15,000pt or 16,500円値引（ペイトク2 テイガク対象・1使用者1還元）"
+            },
+            {
+              "plan": "SB ペイトク2（無制限）",
+              "min": "7,678円/10,538円",
+              "disc": "おうち割光セット▲1,110円＋PayPayゴールドカード割▲550円+家族割3回線▲1,210円",
+              "saku": "iPhone17 1円/月×24（MNP・特典利用料あり）＋おうち割光セット15,000pt or 16,500円値引（ペイトク2 テイガク対象・1使用者1還元）"
+            }
+          ],
+          "net": {
+            "plan": "SB光 1ギガ（解約新規）",
+            "fee": "5720円＋550円（オプションパック）＝6,270円",
+            "how": "解約新規",
+            "saku": "KD30▲33,000円＋あんしん乗り換えで違約金・残債補填"
+          },
+          "points": "・母の使用GB数だとペイトク2が入口には必要ではあるがミニフィット2のほうが最適。\n・ペイペイカードゴールドの4000ptの還元はメインカードのみかつ1アカウントのみのため支払いを一緒にする場合は父のみ条件を満たして付与される。"
+        }
+      ]
+    },
+    "2": {
+      "patterns": [
+        {
+          "title": "パターンA：当日獲得できる最大件数を狙う。",
+          "reason": "固定回線が動かせずおうち割不可→家族割（2回線目以降▲1,100円）を軸にYMへ集約。子は22か月目で返却＋新端末の一択。IIJmioの予約番号制約から当日2台の獲得を狙う。",
+          "phones": [
+            {
+              "plan": "YM シンプル3M（30GB）",
+              "min": "3,608円（主回線のため家族割なし）/4,378円",
+              "disc": "PayPayカードゴールド割▲770円のみ（おうち割なし・家族割のみは2回線目以降のため主回線に割引なし）",
+              "saku": "iPhone16e 1円/月×24（MNP・特典利用料なし）・初月故障安心補償パック880円必須・初月データ増量OP必須"
+            },
+            {
+              "plan": "変更なし",
+              "min": "変更なし",
+              "disc": "なし",
+              "saku": "なし（父の乗り換え端末を母に譲る）"
+            },
+            {
+              "plan": "YM シンプル3 M（30GB）",
+              "min": "2,508円/4,378円",
+              "disc": "家族割▲1,100円＋PayPayカードゴールド割▲770円",
+              "saku": "iPhone17e 1円/月×24（MNP・特典利用料なし）・初月故障安心補償パック880円必須・初月データ増量OP必須"
+            }
+          ],
+          "net": {
+            "plan": "変更なし（マンション備え付け）",
+            "fee": "0円",
+            "how": "変更なし",
+            "saku": "なし"
+          },
+          "points": "・段取り：当日＝父・子の2台。母の端末ニーズを父の乗り換え特典で満たす。\n・父の特典利用歴1年→UQは一年以内の短期解約は1,100円かかるため条件満たしていた場合は説明必須。\n・おうち割なし→家族割（2回線目以降▲1,100円）＋PayPayカードゴールド新規発行▲770円で最安を作る。\n・子は22か月目→返却＋新端末一択（24か月目までの残り支払いは発生と事前説明）\n・母のSE2（中古）はSIMロック解除済み。iPhone17だとeSIMのみになり父との移行にリスクがあるためiPhone16か16eでの提案が無難。"
+        }
+      ]
+    },
+    "3": {
+      "patterns": [
+        {
+          "title": "パターンA：SoftBank＋Air（電波解消＋即日Wi-Fi）",
+          "reason": "ニーズが高いため、引っ越し案件は量販店かなり温度感が高い。不満の核心は電波→Airによる安定回線で解消を最優先。iPhone15は12か月目のためSIMのみ一択。Airで即日Wi-Fi環境も確立。SB1Gマンションは後日判定のため即日確定にはAirが唯一の選択肢。",
+          "phones": [
+            {
+              "plan": "SB ペイトク2（無制限）",
+              "min": "8,888円/10,538円",
+              "disc": "おうち割光セット▲1,100円＋PayPayカード割▲550円",
+              "saku": "SB SIMのみ 10,000pt or 11,000円値引＋おうち割光セット15,000pt or 16,500円値引（ペイトク2 テイガク対象・1使用者1還元）"
+            }
+          ],
+          "net": {
+            "plan": "SoftBank Air（新規）",
+            "fee": "5,368円",
+            "how": "新規",
+            "saku": "60,500円値引。工事不要・引越し直後でも即日。SB1Gマンションは後日判定のためAirが即日確定の唯一の選択肢。"
+          },
+          "points": "・SIMのみ前提（12か月目・返却しても残債36回分は消えない・24か月支払い必須）\n・後日判定＝当日作業員が行くまで光の配線が部屋まで来ているか不明→即日確定にはAirが唯一の答え\n・後日光1Gマンションの判定後、光へ切替提案も可。\n・Air開通でおうち割成立→施策▲16,500円が取れる\n・80GBがWi-Fiをいれてどこまでさがるかをみてもらって、30GBにおさまるようであれば数か月後YMへのダウン案内。"
+        },
+        {
+          "title": "パターンB：ワイモバイル＋Air（月額重視）",
+          "reason": "月額を下げたいならYM。Airを自宅Wi-Fiとして使うことで外出80GBをMに圧縮できるかヒアリング必須。",
+          "phones": [
+            {
+              "plan": "YM シンプル3 M（30GB）",
+              "min": "1,958円/4,378円",
+              "disc": "おうち割光セット(A)▲1,650円＋PayPayカード割▲770円",
+              "saku": "YM SIMのみ 20,000pt or 22,000円値引＋おうち割光セット15,000pt or 16,500円値引（M/L対象・1使用者1還元）・・初月データ増量OP必須"
+            }
+          ],
+          "net": {
+            "plan": "SoftBank Air（新規）",
+            "fee": "5,368円",
+            "how": "新規",
+            "saku": "60,500円値引。工事不要・引越し直後でも即日。SB1Gマンションは後日判定のためAirが即日確定の唯一の選択肢。"
+          },
+          "points": "・外で本当に何GB使うかのヒアリング必須。動画が通勤メインならMで不足の可能性→正直に案内\n・SIMのみ前提（同上）\n・おうち割施策▲16,500円＋Air▲60,500円で合計77,000円相当のCB。\n・AirのキャンペーンU25O60割を適用する場合はCBはだせない。3,278円で2年間利用できるが、今回はおうち割のみCBになってしまうためCBニーズの方には不向き。"
+        }
+      ]
+    },
+    "4": {
+      "patterns": [
+        {
+          "title": "パターンA：SIM単体＋SB光事変",
+          "reason": "夫婦ともに返却P 8か月目→SIMのみ一択。光はドコモ光から事業者変更（事変）で工事不要。おうち割で月額も圧縮し、CB積み上げで訴求。docomoのレンタルルーター返却期限の案内も必須。",
+          "phones": [
+            {
+              "plan": "YM シンプル3 S（5GB）　※初月M→S",
+              "min": "858円/3,278円",
+              "disc": "おうち割光セット(A)▲1,650円＋PayPayゴールドカード割▲770円",
+              "saku": "YM MNP SIMのみCB 22000円値引or20000pt(量販店のポイント)＋おうち割光セット15,000pt or 16,500円値引（M/L対象・1使用者1還元）・初月データ増量OP必須"
+            },
+            {
+              "plan": "YM シンプル3 M（30GB）",
+              "min": "1,958円/4,378円",
+              "disc": "おうち割光セット(A)▲1,650円＋PayPayゴールドカード割▲770円",
+              "saku": "YM MNP SIMのみCB 22000円値引or20000pt(量販店のポイント)＋おうち割光セット15,000pt or 16,500円値引（M/L対象・1使用者1還元）・初月データ増量OP必須"
+            }
+          ],
+          "net": {
+            "plan": "SB光 1ギガ（マンション）",
+            "fee": "4,180円＋550円＝4,730円",
+            "how": "事業者変更（事変）",
+            "saku": "KD30▲33,000円。⚠ドコモ光のレンタルルーターは返却期限内に返却しないと違約金→必ずセットで案内。"
+          },
+          "points": "・夫婦ともに8か月目→SIMのみ一択（24か月縛りはどの社も共通）\n・光は事変で工事不要。事業者変更承諾番号の発行が必要。\n・⚠レンタルルーター返却期限を必ず案内（違約金回避）\n・dカードなし→PayPayゴールドカード新規発行で▲770円/月\n・母はahamoで通話ニーズありの場合は→通話OPは880円をつける。"
+        }
+      ]
+    },
+    "5": {
+      "patterns": [
+        {
+          "title": "パターンA：父母YM＋父母宅Air化＋本人宅SB光10G化",
+          "reason": "本人はSB既存でモバイル変更なし。本人宅SB光1G既存→10Gへ変更（アップセル訴求）。父母はYMでSIM単体MNP。HOME5Gを解約しAir新規で父母宅もおうち割を組む。",
+          "phones": [
+            {
+              "plan": "SB ペイトク50（変更なし）",
+              "min": "変動なし",
+              "disc": "おうち割・カード割適用中",
+              "saku": "PayPayカードゴールド切替提案でペイペイポイントの還元率をあげる。"
+            },
+            {
+              "plan": "YM シンプル3 M（30GB）",
+              "min": "2,838円(1958円+880円)/4,378円",
+              "disc": "おうち割光セット(A)▲1,650円＋PayPayゴールドカード割▲770円",
+              "saku": "YM MNP SIMのみCB 22000円値引or20000pt(量販店のポイント)＋おうち割光セット15,000pt or 16,500円値引（M/L対象・1使用者1還元）・初月データ増量OP必須"
+            },
+            {
+              "plan": "YM シンプル3 M（30GB）",
+              "min": "2,838円(1958円+880円)/4,378円",
+              "disc": "おうち割光セット(A)▲1,650円＋PayPayゴールドカード割▲770円",
+              "saku": "YM MNP SIMのみCB 22000円値引or20000pt(量販店のポイント)＋おうち割光セット15,000pt or 16,500円値引（M/L対象・1使用者1還元）・初月データ増量OP必須"
+            }
+          ],
+          "net": {
+            "plan": "父母宅：Air(解約新規)　　本人宅：SB光1G→10G変更(解約新規)",
+            "fee": "父母宅：5,368円　　本人宅：6,389円+550円＝6,930円",
+            "how": "父母宅：解約新規／本人宅：解約新規",
+            "saku": "父母宅：60,500円値引。　　本人宅：KD30のみ適用（自社変更のためおうち割CBなし）"
+          },
+          "points": "・⚠別居家族グループは確認書類（戸籍謄本）が必須→当日の有無を最初に確認\n・本人＝SB既存でモバイル変更なし。\n・本人宅SB光1G→10G変更はKD30適用可（自社変更のため解約金補填は不可）\n・アップセルは工事無し。モデムのみのお取替え。(かなり古いルーターの場合はBBユニットが10ギガ対応ではないため工事の必要がある可能性が高い。ジニーで顧客照会必須。)\n・60歳以上：スーパーだれとでも定額+が▲1,100円割引で880円→10分かけ放題と同額のためスーパー一択\n・らくらくスマホF-52B→SIMロック解除・対応バンド・動作確認端末リスト確認必須（2023年購入）\n・本人のPayPayカードノーマル→ゴールドへ切替提案（ペイペイ月15万利用ならポイント還元が上がる。）"
+        },
+        {
+          "title": "パターンB：父母端末訴求",
+          "reason": "3年の利用のためアップデートが終わってくるため、端末訴求。\n既存もゴールド、新プランへの案内とアップセルの訴求はマスト。",
+          "phones": [
+            {
+              "plan": "SB ペイトク2 無制限",
+              "min": "8,888円/10,538円",
+              "disc": "おうち割光セット▲1,100円＋PayPayゴールドカード割▲550円",
+              "saku": "なし"
+            },
+            {
+              "plan": "YM シンプル3 M（30GB）",
+              "min": "2,838円(1958円+880円)/4,378円",
+              "disc": "おうち割光セット(A)▲1,650円＋PayPayカードゴールド割▲770円",
+              "saku": "YM AQUOSwish5 一括一円＋おうち割光セット15,000pt or 16,500円値引（M/L対象・1使用者1還元）・初月データ増量OP必須"
+            },
+            {
+              "plan": "YM シンプル3 M（30GB）",
+              "min": "2,838円(1958円+880円)/4,378円",
+              "disc": "おうち割光セット(A)▲1,650円＋PayPayカードゴールド割▲770円",
+              "saku": "YM AQUOSwish5 一括一円＋おうち割光セット15,000pt or 16,500円値引（M/L対象・1使用者1還元）・初月データ増量OP必須"
+            }
+          ],
+          "net": {
+            "plan": "父母宅：Air(解約新規)　　本人宅：SB光1G→10G変更(解約新規)",
+            "fee": "父母宅：5,368円　　本人宅：6,389円+550円＝6,930円",
+            "how": "父母宅：解約新規／本人宅：解約新規",
+            "saku": "父母宅：60,500円値引。　　本人宅：KD30のみ適用（自社変更のためおうち割CBなし）"
+          },
+          "points": "・らくらくスマホ→AQUOSwish5の提案。簡単モードでの使用ができる。\n・O60でYMのかけ放題の割引が入って今よりも安く使える。"
+        }
+      ]
+    },
+    "6": {
+      "patterns": [
+        {
+          "title": "パターンA：携帯YM一本化＋SB光1G（撤去費フル補填・光の改善）",
+          "reason": "躊躇の原因は撤去費→あんしん乗り換え（最大10万円）で補填できることを先に明示。J:COM発番の電話番号は引き継ぎ困難なため先に確認。今回はNTT発番なので問題なし。",
+          "phones": [
+            {
+              "plan": "YM シンプル3 M（30GB）",
+              "min": "2,838円(1958円+880円)/4,378円",
+              "disc": "おうち割光セット(A)▲1,650円＋PayPayゴールドカード割▲770円",
+              "saku": "YM GooglePixel10a 1円×24か月(特典利用料なし)＋おうち割光セット15,000pt or 16,500円値引（M/L対象・1使用者1還元）・初月故障安心補償パック880円必須・初月データ増量OP必須"
+            },
+            {
+              "plan": "YM シンプル3 L+増量（40GB）",
+              "min": "3,058円+550円＝3,608円",
+              "disc": "おうち割光セット(A)▲1,650円＋PayPayゴールドカード割▲770円+増量オプション半年無料",
+              "saku": "YM GooglePixel10a 1円×24か月(特典利用料なし)＋おうち割光セット15,000pt or 16,500円値引（M/L対象・1使用者1還元）・初月故障安心補償パック880円必須・初月データ増量OP必須"
+            },
+            {
+              "plan": "YM シンプル3 M（30GB）",
+              "min": "1,958円/4,378円",
+              "disc": "おうち割光セット(A)▲1,650円＋PayPayゴールドカード割▲770円",
+              "saku": "YM iPhone16 402円×24か月(特典利用料なし)＋おうち割光セット15,000pt or 16,500円値引（M/L対象・1使用者1還元）・初月故障安心補償パック880円必須・初月データ増量OP必須"
+            }
+          ],
+          "net": {
+            "plan": "SB光 戸建て 1ギガ＋J:COMはTV残す",
+            "fee": "5720円＋550円（オプションパック）＝6,270円+JCOMテレビ月額6074円+HDDレンタル月額880円＝13,224円",
+            "how": "解約新規",
+            "saku": "KD30▲33,000円"
+          },
+          "points": "・娘のカメラこだわり→安易な16e/17e案内はNG。iCloudへの課金でiPhone16の128GBで問題なければズーム撮影がないとのことでProの必要がない。結論iPhone16の訴求可能。\n・専門チャンネルの視聴があるためテレビは変えられない。撤去工事が入るのと、Softbank光の工事が入るため工事ネガはつぶす必要がある。\n・YMは特典利用料がないのでやるメリットがかなり高い。Pixel10aにして、7aは返却l可能。"
+        },
+        {
+          "title": "パターンB：テレビはJ:COMに残してAirとおうちでんわで工事ネガの回避。返却期限が過ぎているためそのままの使用でCBと料金ニーズの着地。",
+          "reason": "テレビは専門チャンネルの視聴があるため動かさない。固定電話はおうちでんわでもってこれるため月額12,872円になる。",
+          "phones": [
+            {
+              "plan": "YM シンプル3 M（30GB）",
+              "min": "2,838円(1958円+880円)/4,378円",
+              "disc": "おうち割光セット(A)▲1,650円＋PayPayゴールドカード割▲770円",
+              "saku": "YM SIMのみ 20,000pt or 22,000円値引＋おうち割光セット15,000pt or 16,500円値引（M/L対象・1使用者1還元）・初月データ増量OP必須"
+            },
+            {
+              "plan": "YM シンプル3 L+増量（40GB）",
+              "min": "3,058円+550円＝3,608円/5,478円",
+              "disc": "おうち割光セット(A)▲1,650円＋PayPayゴールドカード割▲770円+増量オプション半年無料",
+              "saku": "YM SIMのみ 20,000pt or 22,000円値引＋おうち割光セット15,000pt or 16,500円値引（M/L対象・1使用者1還元）・初月データ増量OP必須"
+            },
+            {
+              "plan": "YM シンプル3 M（30GB）",
+              "min": "1,958円/4,378円",
+              "disc": "おうち割光セット(A)▲1,650円＋PayPayゴールドカード割▲770円",
+              "saku": "YM SIMのみ 20,000pt or 22,000円値引＋おうち割光セット15,000pt or 16,500円値引（M/L対象・1使用者1還元）・初月データ増量OP必須"
+            }
+          ],
+          "net": {
+            "plan": "SBAir＋おうちでんわ・J:COMTV残す",
+            "fee": "5,368円+550円(固電)＝5,918円　JCOMテレビ月額6074円+HDDレンタル月額880円＝12,872円",
+            "how": "解約新規",
+            "saku": "Air60,500円"
+          },
+          "points": "・総額はテレビを残すと光だとかなり上がってしまう。Airだと多少あがる。速度改善の不満解消は可能でありそこでメリット提案。\n・工事ネガをAirで解消。"
+        },
+        {
+          "title": "パターンC：家電量販店で求められている最大件数。Softbankで端末訴求。",
+          "reason": "・家電量販店はSoftbankのモバイル訴求がポイントが高い。22,000円の特典利用料の説明が必須。",
+          "phones": [
+            {
+              "plan": "SB ペイトク2（無制限）",
+              "min": "7,678円/10,538円",
+              "disc": "おうち割光セット▲1,100円＋PayPayカードゴールド割▲550円+新みんな家族割1,210円(3回線)",
+              "saku": "GooglePixel10a 1円/月×24（MNP・特典利用料あり）＋おうち割光セット15,000pt or 16,500円値引（ペイトク2 テイガク対象・1使用者1還元）"
+            },
+            {
+              "plan": "SB ペイトク2（無制限）",
+              "min": "7,678円/10,538円",
+              "disc": "おうち割光セット▲1,100円＋PayPayカードゴールド割▲550円+新みんな家族割1,210円(3回線)",
+              "saku": "GooglePixel10a 1円/月×24（MNP・特典利用料あり）＋おうち割光セット15,000pt or 16,500円値引（ペイトク2 テイガク対象・1使用者1還元）"
+            },
+            {
+              "plan": "スマホデビュー 20GB(新規)+YM シンプル3M(MNP) 30GB",
+              "min": "1,078円(6か月) +1,958円＝3,036円/4,246円(スマデビ)・4,378円(YM M)",
+              "disc": "SB 一年おトク割＋(12か月)▲1,188円・一年おトク割＋追加割引(12か月)▲330円・デビュー特典(5~18歳)▲1,650円　　YM　おうち割光セット(A)▲1,650円＋PayPayゴールドカード割▲770円",
+              "saku": "SB iPhone17 1円×24か月(新規・特典利用料あり)　YM YM SIMのみ 20,000pt or 22,000円値引＋おうち割光セット15,000pt or 16,500円値引（M/L対象・1使用者1還元）・初月データ増量OP必須"
+            }
+          ],
+          "net": {
+            "plan": "SB光 戸建て 1ギガ＋J:COMはTV残す",
+            "fee": "5720円＋550円（オプションパック）＝6,270円+JCOMテレビ月額6074円+HDDレンタル月額880円＝13,224円",
+            "how": "解約新規",
+            "saku": "KD30▲33,000円"
+          },
+          "points": "・娘のデュアル提案で現状の電話番号の維持でMNP提案もする。\n・スマホデビューはおうち割光セットがないためCBは出ない。"
+        }
+      ]
+    }
+  },
+  "cases": {
+    "0": {
+      "name": "1. ドコモ家族3人",
+      "sub": "シンプル乗り換え",
+      "title": "ケース1｜ドコモ家族3人 → シンプル乗り換え",
+      "phones": [
+        {
+          "who": "父（50代）",
+          "tag": "t-docomo",
+          "label": "docomo",
+          "plan": "ギガライト",
+          "usage": "4GB",
+          "fee": "4,378円",
+          "device": "iPhone14（128GB・バッテリー78%）",
+          "dfee": "0円（3年前一括）"
+        },
+        {
+          "who": "母（50代）",
+          "tag": "t-docomo",
+          "label": "docomo",
+          "plan": "ギガライト",
+          "usage": "2GB",
+          "fee": "3,278円",
+          "device": "AQUOS sense4（64GB）",
+          "dfee": "0円（一括）"
+        },
+        {
+          "who": "子（17歳）",
+          "tag": "t-docomo",
+          "label": "docomo",
+          "plan": "eximo 無制限",
+          "usage": "27GB",
+          "fee": "6,028円",
+          "device": "iPhone15（128GB・バッテリー93%）",
+          "dfee": "3,245円/月（返却P 12か月目）"
+        }
+      ],
+      "net": {
+        "name": "NURO光 10G",
+        "type": "戸建て",
+        "speed": "最大10Gbps",
+        "fee": "6,600円",
+        "tel": "あり（込）",
+        "tv": "なし",
+        "cost": "49,500円",
+        "debt": "相殺済み、2年以上使用",
+        "note": "維持希望、PCゲーム利用あり"
+      },
+      "special": "初の他社乗り換え（キャリア歴7年）。NURO光は維持希望。固定電話（NURO光でんわ）込みのためおうち割光セットの対象になる点がカギ。子は返却プログラム12か月目。dカードシルバー利用中・クレジットカードに抵抗なし。モバイル・光・カードともに父が一括管理で名義支払い人。通話ニーズ：家族とも少なめ（LINE通話中心）。父のiPhoneこだわり：写真が撮れれば十分・容量128GBで満足。",
+      "area": [
+        [
+          true,
+          "SB Air 4G"
+        ],
+        [
+          true,
+          "SB Air 5G"
+        ],
+        [
+          true,
+          "SB1G 戸建て"
+        ],
+        [
+          true,
+          "SB1G マンション"
+        ],
+        [
+          true,
+          "SB10G"
+        ]
+      ],
+      "decisionLog": "基本父主導。母と子は父判断任せ。大手キャリアが安心という考えがありずっとドコモ使ってる。乗り換えた経験なし。\n子がゲームするからNUROを使っていて今のところ不満はない。面倒なことはやりたくない。\n父のiPhoneこだわり：食べ物の写真が撮れれば十分で広角を使わない・容量128GBで満足。バッテリーの持ちが悪くなってきた。\n母のAQUOSこだわり：カメラの画質のスペックが今と同じくらいいいものがいい。端末は変えても変えなくてもどっちでもいい。"
+    },
+    "1": {
+      "name": "2. au＋auひかり",
+      "sub": "高速大容量まとめ",
+      "title": "ケース2｜au＋auひかり → 高速大容量まとめ",
+      "phones": [
+        {
+          "who": "父（50代）",
+          "tag": "t-au",
+          "label": "au",
+          "plan": "使い放題MAX+ Netflixパック2(P)",
+          "usage": "30GB",
+          "fee": "6,556円",
+          "device": "Galaxy S24（256GB・バッテリー良好・Netflix・Amazonプライム同時利用中）",
+          "dfee": "1,500円/月（22/48か月）"
+        },
+        {
+          "who": "母（50代）",
+          "tag": "t-au",
+          "label": "au",
+          "plan": "ピタットプラン",
+          "usage": "3GB",
+          "fee": "4,378円",
+          "device": "Xperia 10 V（128GB）",
+          "dfee": "0円（一括）"
+        },
+        {
+          "who": "子（20歳）",
+          "tag": "t-au",
+          "label": "au",
+          "plan": "使い放題MAX",
+          "usage": "60GB",
+          "fee": "5,258円",
+          "device": "iPhone14（128GB・バッテリー88%）",
+          "dfee": "2,200円/月（22/48か月）"
+        }
+      ],
+      "net": {
+        "name": "auひかりホーム１ギガ",
+        "type": "戸建て",
+        "speed": "最大1Gbps",
+        "fee": "6,380円",
+        "tel": "あり（込）",
+        "tv": "なし",
+        "cost": "41,250円",
+        "debt": "12ヶ月残あり（20,625円）",
+        "note": "解約違約金あり"
+      },
+      "special": "メアド残しは月330円をauに払い続ける必要がある。クレジットカードのみ登録に使用できるためヒアリング必須。\nNetflix",
+      "area": [
+        [
+          true,
+          "SB Air 4G"
+        ],
+        [
+          true,
+          "SB Air 5G"
+        ],
+        [
+          true,
+          "SB1G 戸建て"
+        ],
+        [
+          true,
+          "SB1G マンション"
+        ],
+        [
+          true,
+          "SB10G"
+        ]
+      ],
+      "decisionLog": "父主導だが母と子の意見も考慮するタイプ。スマホも光もauでまとめれば安いと思ってて、子どもが大容量の最新機種欲しかったのでauで統一した。auPAYカードゴールド所持。父子の端末は返却プログラム22か月目。通話ニーズ：特になし。父はGalaxyの操作に慣れている（カメラ画質が維持できればほかの端末でも可、iPhoneは抵抗あり）。子はiPhone継続希望でゲーム性能重視。\n母はGB変動の不安から利用量を抑えているが主にWi-Fi利用でギガ不足はなく、通話かけ放題は継続希望。auのメアド＠ezweb.comを使用しているため乗り換えに抵抗あり。父が一番重視しているのは現在の使い放題MAX+ Netflixパック2(P)に含まれているNetflix・Amazonプライムが乗り換え後どうなるか→必ず説明すること。父の現在の月額6,556円の内訳：基本料金9,086円−家族割プラス(3人以上)▲1,210円−auスマートバリュー▲1,100円−auPAYカードお支払い割▲220円（フル割引適用時）。この中にNetflix・Amazonプライム・TERASA分（合計概算1,400〜1,600円相当）が含まれている。\n父はTERASAの視聴がなく、NetflixとAmazonプライムの継続希望。"
+    },
+    "2": {
+      "name": "3. 混同家族3社",
+      "sub": "シンプル乗り換え",
+      "title": "ケース3｜混同家族（3社バラバラ） → シンプル乗り換え",
+      "phones": [
+        {
+          "who": "父（50代）",
+          "tag": "t-uq",
+          "label": "UQ",
+          "plan": "トクトクプラン2",
+          "usage": "15/35GB",
+          "fee": "3,828円",
+          "device": "AQUOS wish4（64GB）",
+          "dfee": "0円（1年前一括）"
+        },
+        {
+          "who": "母（50代）",
+          "tag": "t-iij",
+          "label": "IIJmio",
+          "plan": "5ギガプラン",
+          "usage": "5GB",
+          "fee": "950円",
+          "device": "iPhoneSE2（中古・82%）",
+          "dfee": "0円"
+        },
+        {
+          "who": "子（20歳）",
+          "tag": "t-au",
+          "label": "au",
+          "plan": "スマホスタートベーシック",
+          "usage": "30GB",
+          "fee": "5,423円",
+          "device": "iPhone14（87%）",
+          "dfee": "2円/月（22/48か月）"
+        }
+      ],
+      "net": {
+        "name": "マンション備え付け",
+        "type": "マンション",
+        "speed": "なし",
+        "fee": "0円",
+        "tel": "なし",
+        "tv": "なし",
+        "cost": "なし",
+        "debt": "なし",
+        "note": "JCOM指定"
+      },
+      "special": "家族3社バラバラだが請求は父親にまとめている。固定回線は速度不満もなく、ニーズ無し。父は1年前にイベントで乗り換え特典利用済み。IIJmioは即日MNP予約番号発行不可→当日乗り換えできるのは2台のみ。auPAYカード不所持。子の端末は返却プログラム22か月目。通話ニーズ：家族ともなし。母のiPhoneこだわり：サイズ小さめ希望・機種は何でも可。",
+      "area": [
+        [
+          true,
+          "SB Air 4G"
+        ],
+        [
+          true,
+          "SB Air 5G"
+        ],
+        [
+          true,
+          "SB1G マンション"
+        ],
+        [
+          false,
+          "SB1G 戸建て"
+        ],
+        [
+          false,
+          "SB10G"
+        ]
+      ],
+      "decisionLog": "支払い権は父だが裁量はそれぞれにある。もともと全員auだったが、父は料金が高いという理由でUQに、母は極力安くしたくて自分で調べてIIJに、子はauでiPhoneを購入しそのまま割引がなくなってしまい、今回返却のために来店。"
+    },
+    "3": {
+      "name": "4. 楽天単身",
+      "sub": "＋SoftBank Air",
+      "title": "ケース4｜楽天単身 → SoftBank Airセット",
+      "phones": [
+        {
+          "who": "単身男性（30代）",
+          "tag": "t-rakuten",
+          "label": "楽天",
+          "plan": "最強プラン",
+          "usage": "80GB",
+          "fee": "3,278円",
+          "device": "iPhone15（バッテリー97%）",
+          "dfee": "3,100円/月（12/48か月）"
+        }
+      ],
+      "net": {
+        "name": "固定回線なし",
+        "type": "マンション",
+        "speed": "なし",
+        "fee": "0円",
+        "tel": "なし",
+        "tv": "なし",
+        "cost": "なし",
+        "debt": "なし",
+        "note": "自宅にWi-Fiなし"
+      },
+      "special": "通勤・商業施設・地下での楽天の電波に強い不満→安定回線へMNP検討。工事不要のSoftBank Air導入を視野。引越し直後。冷蔵庫・洗濯機買い替えのためCBニーズあり。端末は返却プログラム12か月目。通話ニーズ：楽天リンクの使用あり。実質の通話料は5分超えない通話が毎月500円いかないくらいの利用。※エリアの「後日判定」＝当日作業員が行ってみるまで光の配線が部屋まで来ているか分からないという意味。",
+      "area": [
+        [
+          true,
+          "SB Air 4G"
+        ],
+        [
+          true,
+          "SB Air 5G"
+        ],
+        [
+          "後日判定",
+          "SB1G マンション"
+        ],
+        [
+          false,
+          "SB1G 戸建て"
+        ],
+        [
+          false,
+          "SB10G"
+        ]
+      ],
+      "decisionLog": "会社にはWi-Fiがあるため、データを使用することはほとんどない。家や通勤時間(1時間)での利用で80GBの利用が見られる。引っ越し先の住所は確定しており、3日前に入居済み。身分証明書は旧住所の記載のみ。本日賃貸契約書の持参有。"
+    },
+    "4": {
+      "name": "5. 夫婦2人",
+      "sub": "ドコモ光ペア移行",
+      "title": "ケース5｜夫婦2人・ドコモ光ペアからの移行",
+      "phones": [
+        {
+          "who": "父（50代）",
+          "tag": "t-docomo",
+          "label": "docomo",
+          "plan": "ドコモmini",
+          "usage": "4GB",
+          "fee": "1,540円",
+          "device": "Pixel 9a（128GB・バッテリー100%）",
+          "dfee": "1円/月（8/48か月）2025年11月購入。"
+        },
+        {
+          "who": "母（50代）",
+          "tag": "t-docomo",
+          "label": "docomo",
+          "plan": "ahamo",
+          "usage": "30GB",
+          "fee": "2,970円",
+          "device": "iPhone16（128GB・バッテリー100%）",
+          "dfee": "1円/月（8/48か月）2025年11月購入。"
+        }
+      ],
+      "net": {
+        "name": "ドコモ光1ギガ",
+        "type": "マンション",
+        "speed": "最大1Gbps",
+        "fee": "4,400円",
+        "tel": "なし",
+        "tv": "なし",
+        "cost": "なし",
+        "debt": "なし",
+        "note": "前回BIGLOBE光からの事変。8か月経過。レンタルルーター利用中"
+      },
+      "special": "dカード所持なし。端末は両名とも返却プログラム8か月目（48か月分割）。ドコモ光は前回BIGLOBE光から事業者変更して8か月。通話ニーズ：夫婦とも少なめ。母はahamo（5分通話無料込み）だが通話ニーズなし。",
+      "area": [
+        [
+          true,
+          "SB Air 4G"
+        ],
+        [
+          true,
+          "SB Air 5G"
+        ],
+        [
+          true,
+          "SB1G マンション"
+        ],
+        [
+          false,
+          "SB1G 戸建て"
+        ],
+        [
+          false,
+          "SB10G"
+        ]
+      ],
+      "decisionLog": "乗り換えに抵抗なし、CBニーズあり。BIGLOBE光の補填金の受け取り済み。クレジットカードは抵抗はない。ゴールドは年会費ネガがある。"
+    },
+    "5": {
+      "name": "6. 単身＋別居両親",
+      "sub": "高齢者ケース",
+      "title": "ケース6｜単身＋別居の高齢両親",
+      "phones": [
+        {
+          "who": "息子（30代）",
+          "tag": "t-sb",
+          "label": "SoftBank",
+          "plan": "ペイトク50",
+          "usage": "45GB",
+          "fee": "6,138円",
+          "device": "iPhone17ProMax（512GB・バッテリー100%）",
+          "dfee": "6,383円/月（6/36か月）"
+        },
+        {
+          "who": "父（65歳以上・別居）",
+          "tag": "t-docomo",
+          "label": "docomo",
+          "plan": "irumo＋かけ放題",
+          "usage": "9GB",
+          "fee": "3,950円",
+          "device": "らくらくスマホ F-52B",
+          "dfee": "0円（3年前ガラケーから一括）"
+        },
+        {
+          "who": "母（65歳以上・別居）",
+          "tag": "t-docomo",
+          "label": "docomo",
+          "plan": "ahamo＋かけ放題",
+          "usage": "30GB",
+          "fee": "4,070円",
+          "device": "らくらくスマホ F-52B",
+          "dfee": "0円（3年前ガラケーから一括）"
+        }
+      ],
+      "net": {
+        "name": "SoftBank光／ドコモHOME5G",
+        "type": "マンション／戸建て",
+        "speed": "最大1Gbps／最大4.2Gbps",
+        "fee": "5,280円／5,280円",
+        "tel": "使用していない／なし",
+        "tv": "なし／なし",
+        "cost": "31,680円／端末代金73,260円",
+        "debt": "なし（5年以上）／端末残債なし（4年以上）",
+        "note": "なし"
+      },
+      "special": "別居だが商談時は同席中。支払い・名義は本人と父で別々。本人はPayPayカードノーマルで月15万以上利用。別居家族グループ作成には家族確認書類（健康保険証・戸籍謄本など）が必要。通話ニーズ：父母とも長通話が多くかけ放題必須（母はahamoだがかけ放題オプションを付けている＝通話多い）。",
+      "area": [
+        [
+          false,
+          "SB Air（本人宅）"
+        ],
+        [
+          true,
+          "SB Air（父母宅）"
+        ],
+        [
+          true,
+          "SB1G 両宅"
+        ],
+        [
+          true,
+          "SB10G 両宅"
+        ]
+      ],
+      "decisionLog": "息子はCBニーズあり。光は長い利用のためアップセルの提案の余地あり。\n父母の機種F-42A は 2020年モデルで古い。バッテリー劣化が進んでいる可能性が高い。OSアップデートは終了している。動作が重くなる訴えあり。"
+    },
+    "6": {
+      "name": "7. J:COM光テレビ",
+      "sub": "からの乗り換え",
+      "title": "ケース7｜J:COM光・テレビからの乗り換え",
+      "phones": [
+        {
+          "who": "父（50代）",
+          "tag": "t-au",
+          "label": "au",
+          "plan": "auバリューリンク マネ活2",
+          "usage": "20GB/無制限",
+          "fee": "8,987円",
+          "device": "Pixel 7a（128GB）",
+          "dfee": "1,300円（32/48か月）"
+        },
+        {
+          "who": "母（40代）",
+          "tag": "t-au",
+          "label": "au",
+          "plan": "auバリューリンク マネ活2",
+          "usage": "40GB/無制限",
+          "fee": "8,228円",
+          "device": "Pixel 7a（128GB）",
+          "dfee": "1,300円（32/48か月）"
+        },
+        {
+          "who": "娘（15歳）",
+          "tag": "t-uq",
+          "label": "UQ",
+          "plan": "トクトクプラン2",
+          "usage": "30GB",
+          "fee": "2,728円",
+          "device": "iPhone14Pro（256GB・バッテリー80%）",
+          "dfee": "0円（一括）"
+        }
+      ],
+      "net": {
+        "name": "J:COM テレビ+ネット+固定電話",
+        "type": "戸建て",
+        "speed": "最大320Mbps",
+        "fee": "12,383円",
+        "tel": "あり(NTT発番)",
+        "tv": "シン・スタンダードプラン",
+        "cost": "47,520円",
+        "debt": "残債なし",
+        "note": "撤去工事費別途発生・5年以上使用・専門チャンネルの視聴あり・録画用ハードディスクのレンタルあり"
+      },
+      "special": "J:COMはテレビ・固定電話パックのセット料金→比較案内に注意。撤去作業・費用が躊躇ポイント。auPAYカードゴールド・月15万以上。auじぶん銀行特典4,500pt還元中。固定電話はJ:COM発番の可能性→番号引き継ぎ可否を最初に確認。\n\nJ:COMのテレビ・固定電話パックの月額\nセット料金なので案内に気を付けてくださ\nい。\nJCOM料金内訳\nテレビ・ネット 9,680円\n固定電話(NTT発番) 1,903円\n録画用ハードディスク(2TBレンタル)880円\n合計月額12,383円\nしかしJ:COM解約に際して発生する撤去作\n業と費用が躊躇されています。ソフトバン\nクでこれらの初期負担を全額カバーし、携\n帯をワイモバイルに一本化させたい方針で\nす。\nJCOMTV継続の場合 月額6074円に変更\nHDDレンタル代 月額880円",
+      "area": [
+        [
+          true,
+          "SB Air 4G"
+        ],
+        [
+          true,
+          "SB Air 5G"
+        ],
+        [
+          true,
+          "SB1G 戸建て"
+        ],
+        [
+          true,
+          "SB1G マンション"
+        ],
+        [
+          true,
+          "SB10G"
+        ]
+      ],
+      "decisionLog": "JCOMのテレビはチューナーレンタルあり。固定電話はNTT発番。速度に不満有。\n娘はiPhone14Pro（256GB・バッテリー80%）でカメラ画質に強いこだわり。ズーム撮影は多くない。100GB以上は写真でストレージを占めている。197GB/256GBの利用。iCloudの課金はまだしていない。\n父母はPixelの操作に慣れている。父が仕事でも個人携帯の利用があり、短時間通話多めで料金が少し上がっている（5分以内）。これからも通話は増えそう。"
+    }
+  },
+  "quiz": {
+    "0": [
+      {
+        "q": "基本的に古い端末でも、海外購入の端末でも全社SIMロックさえ解除すれば対応している。",
+        "a": false,
+        "exp": "ワイモバイル対応機種かどうかは毎度調べる必要がある。今回のAQUOSsense4はワイモバイル対応。(5Gは非対応)"
+      },
+      {
+        "q": "返却プログラム（カエドキ等）の端末は、13か月目に返却すれば残債が消える。",
+        "a": false,
+        "exp": "返却は一年目から可能であるが、2年分のお支払いは必須。"
+      },
+      {
+        "q": "NURO光に固定電話がついてご利用している場合は、ソフトバンク・ワイモバイルで割引を組むことが出来る。",
+        "a": true,
+        "exp": "おうち割光セット対象の固定通信サービスである。"
+      },
+      {
+        "q": "光が既存の場合は、乗り換えるたびにおうち割光セットのキャッシュバックをもらうことができるのがソフトバンクの強みである。",
+        "a": false,
+        "exp": "基本的には初めて割引を組む場合のみ。過去一年以内におうち割光セットを組んでいない場合は適用になるケースがあるがジニーで確認が必須。"
+      },
+      {
+        "q": "光が既存の場悪、おうち割光セットのキャッシュバックの還元方法は家電量販店のポイントか後日ペイペイポイントか選ぶことが出来る。",
+        "a": false,
+        "exp": "光既存の場合は、ペイペイポイントのみ。2週間以内の付与が多い。"
+      },
+      {
+        "q": "ワイモバイルはすべてのプランがキャッシュバックの対象プランである。",
+        "a": false,
+        "exp": "M以上。Sを着地で使用する場合はMを入り口にして明日以降Myワイモバイルからプラン変更の手続きを行っていただく必要がある。"
+      },
+      {
+        "q": "現在の2年返却制度は、乗り換えると端末の分割金額が高額になるか一括で請求がくるので基本的に乗り換えはリスクである。",
+        "a": false,
+        "exp": "現在の2年返却制度は端末の本体代金と通信費を別々の会社にしても本体代金はあがらない。"
+      },
+      {
+        "q": "ワイモバイルの増量オプションは、お客様が必要ないとおっしゃっていた場合オプションをつけずに特典利用をすることが出来る。",
+        "a": false,
+        "exp": "ワイモバイルの増量OPは施策適用必須。半年以内にMyワイモバイルからオプションの解約をすることで料金が発生しない。"
+      }
+    ],
+    "1": [
+      {
+        "q": "auの「Netflixパック」に含まれていたNetflix・Amazonプライムは、他社へ乗り換えても自動的にそのまま使い続けられる",
+        "a": false,
+        "exp": "auの利用料金に含まれていた特典は解約とともに終了。Netflix、Amazonプライムは支払い方法の再登録が必要。"
+      },
+      {
+        "q": "あんしん乗り換えキャンペーンの補填は、ソフトバンクが元の会社へ直接支払ってくれる",
+        "a": false,
+        "exp": "お客様が先に他社へ支払い→証明書を専用サイトへアップロード→審査後に普通為替（キャッシュバック）で受け取る方式。SBが代わりに支払うわけではない"
+      },
+      {
+        "q": "あんしん乗り換えキャンペーンによる解約金・撤去費等の補填は最大10万円まで",
+        "a": true,
+        "exp": "違約金＋工事費残債の合計が10万円以内なら全額カバーできる（モバイルWi-Fiルーター残債は42,000円上限）"
+      },
+      {
+        "q": "SB光でおうち割を組むには、オプションパック（550円）の加入が必須",
+        "a": true,
+        "exp": "案内する月額は必ず基本料金＋550円で組み立てる"
+      },
+      {
+        "q": "ペイトク2の特典として月8万円のペイペイカード・ペイペイのご利用で4000ptの還元がある。今回の場合は家族全員ペイトク2の場合は月36万のご利用で12000ptが父のみ発行のゴールドカードで還元がつく。",
+        "a": false,
+        "exp": "ゴールドは月4万円のご利用で還元可能。またカード名義同一人のみの還元になるため、支払いをまとめている場合は母子は特典がつかない。カードの発行人数分必要。"
+      },
+      {
+        "q": "Softbankはau・docomoと異なり特典利用料がない。",
+        "a": false,
+        "exp": "Softbankは特典利用料22,000円のお支払いがある。Y!mobileは特典利用料がない。"
+      }
+    ],
+    "2": [
+      {
+        "q": "IIJmioは来店当日にMNP予約番号を発行してもらえる",
+        "a": false,
+        "exp": "IIJmioは即日MNP予約番号の発行ができない。当日乗り換えできるのは2台のみ。"
+      },
+      {
+        "q": "ワイモバイルは家族割は全員に適用される。",
+        "a": false,
+        "exp": "主回線には適用不可。2回線目以降に適用が可能。"
+      },
+      {
+        "q": "中古で購入したスマートフォンは、SIMロックと赤ロム（ネットワーク利用制限）の両方を確認する必要がある",
+        "a": true,
+        "exp": "中古品はSIMロック残存と赤ロムのリスクがある。持ち込みの場合は必ず確認してから案内する"
+      }
+    ],
+    "3": [
+      {
+        "q": "返却プログラム（カエドキ等）の端末は、13か月目に返却すれば残債が消える",
+        "a": false,
+        "exp": "返却しても残債は消えない。24か月目までの支払いはどの携帯会社も必須"
+      },
+      {
+        "q": "エリア判定の「後日判定」とは、申込書類の審査が後日になるという意味である",
+        "a": false,
+        "exp": "当日作業員が行ってみるまで、光の配線が部屋まで来ているか分からないという意味。即日確定にはSoftBank Airが唯一の選択肢になる。"
+      },
+      {
+        "q": "SoftBank Airは工事不要で、引越し直後でも即日利用できる",
+        "a": true,
+        "exp": "工事不要・即日開通がAirの最大のメリット。1Gマンションが後日判定の場合にAirが有効な理由でもある"
+      },
+      {
+        "q": "",
+        "a": true,
+        "exp": "案内する月額は必ず基本料金＋550円で組み立てる"
+      },
+      {
+        "q": "ワイモバイルのSIM単体MNPでキャッシュバックを受け取るには、データ増量オプションへの加入が必要",
+        "a": true,
+        "exp": "CB受け取りに必須。入り口には必要だが半年間は無料→半年以内にMy Y!mobileから解約する提案をセットで行うこと"
+      }
+    ],
+    "4": [
+      {
+        "q": "返却プログラム（カエドキ等）の端末は、8か月目でも返却すれば残債が消える",
+        "a": false,
+        "exp": "返却しても残債は消えない。24か月目まで支払いが発生する。端末を動かすメリットがないためSIMのみが正解。"
+      },
+      {
+        "q": "ドコモ光からSoftBank光への変更は、事業者変更（事変）であれば工事不要で切り替えられる",
+        "a": true,
+        "exp": "事変なら光ファイバー工事不要で切り替えられる。ドコモ光→BIGLOBE光→SB光と複数回の事変でも工事不要。"
+      },
+      {
+        "q": "現在利用中のドコモ光などのレンタルルーターは、解約後に返却期限内に返さないと違約金がかかる",
+        "a": true,
+        "exp": "乗り換え時は必ず「レンタル機器の返却期限」をセットで案内する。"
+      },
+      {
+        "q": "SB光でおうち割を組むには、オプションパック（550円）の加入が必須",
+        "a": true,
+        "exp": "案内する月額は必ず基本料金＋550円で組み立てる"
+      },
+      {
+        "q": "ワイモバイルのSIM単体MNPでキャッシュバックを受け取るには、データ増量オプションへの加入が必要",
+        "a": true,
+        "exp": "CB受け取りに必須。入り口には必要だが半年間は無料→半年以内にMy Y!mobileから解約する提案をセットで行うこと。"
+      },
+      {
+        "q": "2026年3月5日以前にdocomoで契約した端末は特典利用料の発生がない。",
+        "a": true,
+        "exp": "特典利用料は2026年3月5日からdocomoは適用になった。auは2026年2月26日。Softbankは2026年8月25日から。契約日の確認が必須。"
+      }
+    ],
+    "5": [
+      {
+        "q": "ドコモのhome5Gにもし端末残債が残っていた場合Softbankは最大10万円まで補填が出来る。",
+        "a": false,
+        "exp": "光回線の違約金は10万円は可能だが、ホームルーターやポケットWi-Fiの残債は42,000円まで。"
+      },
+      {
+        "q": "SoftBank光1ギガを既にご利用のお客様には、10ギガへの変更を案内できる（KD30適用）",
+        "a": true,
+        "exp": "ただし自社内の変更のため、解約金等の負担（補填）はできない。"
+      },
+      {
+        "q": "ワイモバイルの60歳以上の方が「スーパーだれとでも定額+（24時間）」を利用すると、▲1,100円割引が適用されて880円になる",
+        "a": true,
+        "exp": "10分かけ放題（880円）と同額で24時間かけ放題が使える→60歳以上はスーパーだれとでも定額+一択"
+      },
+      {
+        "q": "SB光でおうち割を組むには、オプションパック（550円）の加入が必須",
+        "a": true,
+        "exp": "案内する月額は必ず基本料金＋550円で組み立てる"
+      },
+      {
+        "q": "2021年9月以前にキャリアで購入した端末は、SIMロックがかかっている可能性があり、他社のSIMを使う前に解除が必要",
+        "a": true,
+        "exp": "2021年10月以降のキャリア販売端末はロック禁止。それ以前の端末（らくらくスマホF-42Aは2021年以前）は購入元キャリアのマイページで解除確認が必要"
+      }
+    ],
+    "6": [
+      {
+        "q": "J:COM発番の固定電話番号は、SoftBank光へ乗り換えた際にそのまま引き継ぐことができる",
+        "a": false,
+        "exp": "J:COM発番の電話番号は引き継ぎが困難。固定電話の使用有無だけでなくどこの発番なのかヒアリング必須。今回はNTT発番のため継続可能。"
+      },
+      {
+        "q": "テレビを残して固定電話と光をSoftbankにかえることが出来る。",
+        "a": true,
+        "exp": "JCOMテレビはそのまま残すことができる。継続の場合は月額6,074円。"
+      },
+      {
+        "q": "JCOMのネット解約の場合は撤去の工事が入る。",
+        "a": true,
+        "exp": "宅内にあるJCOMの機器や屋外ケーブルの撤去工事費は10,780円。こちらも補填範囲内。"
+      },
+      {
+        "q": "あんしん乗り換えキャンペーンの補填は、ソフトバンクが元の会社へ直接支払ってくれる",
+        "a": false,
+        "exp": "お客様が先に支払い→証明書アップロード→普通為替で受け取る方式。SBが代わりに支払うわけではない。"
+      },
+      {
+        "q": "返却可能な端末かどうかはお客様が覚えているかどうかでしか確かめられない。",
+        "a": false,
+        "exp": "Myauで端末情報に「スマホトクするプログラムで返却可能」と記載があれば返却が可能。基本的に4年分割が組まれている場合は2年返却のプログラムに入っている場合が多い。"
+      }
+    ]
+  },
+  "exportedAt": "2026/6/30 22:51:53"
+};
+if(EMBEDDED_EDITS){
+  if(EMBEDDED_EDITS.ansData) Object.assign(editedAnsData, EMBEDDED_EDITS.ansData);
+  if(EMBEDDED_EDITS.cases) Object.assign(editedCases, EMBEDDED_EDITS.cases);
+  if(EMBEDDED_EDITS.quiz) Object.assign(editedQuiz, EMBEDDED_EDITS.quiz);
+}
+
+function openEditor(){
+  loadAllEdits().then(function(){
+    editCase = cur >= 0 ? cur : 0;
+    editSubTab = 'answer';
+    renderEditTabs();
+    renderEditSubTabs();
+    renderEditBody();
+    document.getElementById('editModal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  });
+}
+
+function renderEditSubTabs(){
+  var tb = document.getElementById('editSubTabs');
+  if(!tb) return;
+  var tabs = [['answer','✏️ 模範解答'],['customer','👤 顧客設定'],['quiz','❓ 注意事項クイズ']];
+  tb.innerHTML = tabs.map(function(t){
+    return '<button class="modal-tab'+(editSubTab===t[0]?' on':'')+'" data-sub="'+t[0]+'">'+t[1]+'</button>';
+  }).join('');
+  tb.querySelectorAll('.modal-tab').forEach(function(b){
+    b.addEventListener('click', function(){
+      flushEditorValues();
+      editSubTab = b.getAttribute('data-sub');
+      renderEditSubTabs();
+      renderEditBody();
+    });
+  });
+}
+function closeEditor(){
+  document.getElementById('editModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function renderEditTabs(){
+  var tb = document.getElementById('editTabs');
+  if(!tb) return;
+  tb.innerHTML = CASES.map(function(cas,i){
+    var label = cas.name.replace('\n',' ');
+    var custom = (editedAnsData[i] !== undefined || editedCases[i] !== undefined) ? ' ✎' : '';
+    return '<button class="modal-tab'+(i===editCase?' on':'')+'" data-i="'+i+'">'+label+custom+'</button>';
+  }).join('');
+  tb.querySelectorAll('.modal-tab').forEach(function(b){
+    b.addEventListener('click', function(){
+      flushEditorValues();
+      editCase = parseInt(b.getAttribute('data-i'),10);
+      renderEditTabs();
+      renderEditBody();
+    });
+  });
+}
+
+function renderEditBody(){
+  var el = document.getElementById('editBody');
+  if(!el) return;
+  var st = document.getElementById('editStat');
+
+  if(editSubTab === 'answer'){
+    var patterns = getAnsPatterns(editCase);
+    var cas = getCaseData(editCase);
+    var isCustom = editedAnsData[editCase] !== undefined;
+    if(st){ st.textContent = isCustom ? '✎ カスタム編集済み' : 'デフォルト'; st.className = 'edit-stat'+(isCustom?' custom':''); }
+    var marks = ['①','②','③'];
+    var h = '';
+    patterns.forEach(function(pat, pi){
+      h += '<div class="edit-phone-block" style="margin-bottom:14px">'
+        + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">'
+        + '<div class="edit-section-title">📋 パターン'+(pi+1)+'</div>'
+        + '<button type="button" class="btn-tiny danger" onclick="removeAnsPattern('+pi+')">このパターンを削除</button>'
+        + '</div>'
+        + '<div class="edit-label">パターン名</div>'
+        + '<input type="text" id="ep_title'+pi+'" value="'+safeEnc(pat.title)+'" style="width:100%;border:1px solid var(--line);border-radius:6px;padding:7px 8px;font-size:13px;font-family:inherit;margin-bottom:8px">'
+        + '<div class="edit-label">提案理由（1〜2行）</div>'
+        + '<textarea class="edit-ta" id="ep_reason'+pi+'" rows="2" style="min-height:60px">'+safeEnc(pat.reason||'')+'</textarea>';
+      cas.phones.forEach(function(phone, j){
+        h += '<div style="background:var(--sb-light);border-radius:8px;padding:10px;margin-top:8px">'
+          + '<div style="font-size:12px;font-weight:600;margin-bottom:6px">'+phone.who+'</div>'
+          + '<div class="edit-row">'
+          + '<div class="ef"><label class="fl">プラン・GB数</label><input type="text" id="ep_p'+pi+'_plan'+j+'" value="'+safeEnc(pat.phones[j]?pat.phones[j].plan:'')+'"></div>'
+          + '<div class="ef"><label class="fl">最安値/基本料金</label><input type="text" id="ep_p'+pi+'_min'+j+'" value="'+safeEnc(pat.phones[j]?pat.phones[j].min:'')+'"></div>'
+          + '</div><div class="edit-row">'
+          + '<div class="ef" style="flex:2"><label class="fl">割引内訳と金額</label><input type="text" id="ep_p'+pi+'_disc'+j+'" value="'+safeEnc(pat.phones[j]?pat.phones[j].disc:'')+'"></div>'
+          + '</div><div class="edit-row">'
+          + '<div class="ef" style="flex:2"><label class="fl">施策・CB・端末</label><input type="text" id="ep_p'+pi+'_saku'+j+'" value="'+safeEnc(pat.phones[j]?pat.phones[j].saku:'')+'"></div>'
+          + '</div></div>';
+      });
+      h += '<div style="background:#f0f4f8;border-radius:8px;padding:10px;margin-top:8px">'
+        + '<div style="font-size:12px;font-weight:600;margin-bottom:6px">④固定回線</div>'
+        + '<div class="edit-row">'
+        + '<div class="ef"><label class="fl">プラン</label><input type="text" id="ep_p'+pi+'_net_plan" value="'+safeEnc(pat.net.plan)+'"></div>'
+        + '<div class="ef"><label class="fl">月額</label><input type="text" id="ep_p'+pi+'_net_fee" value="'+safeEnc(pat.net.fee)+'"></div>'
+        + '</div><div class="edit-row">'
+        + '<div class="ef"><label class="fl">変更方法</label><input type="text" id="ep_p'+pi+'_net_how" value="'+safeEnc(pat.net.how)+'"></div>'
+        + '<div class="ef" style="flex:2"><label class="fl">施策・CB</label><input type="text" id="ep_p'+pi+'_net_saku" value="'+safeEnc(pat.net.saku)+'"></div>'
+        + '</div></div>'
+        + '<div class="edit-label" style="margin-top:8px">判断ポイント（改行区切り）</div>'
+        + '<textarea class="edit-ta" id="ep_p'+pi+'_points" rows="4" style="min-height:80px">'+safeEnc(pat.points||'')+'</textarea>'
+        + '</div>';
+    });
+    h += '<button type="button" class="btn-tiny" style="margin-top:8px;font-size:13px;padding:8px 16px" onclick="addAnsPattern()">＋ パターンを追加</button>'
+      + '<p style="font-size:11px;color:var(--ink3);margin-top:10px">変更は「✓ この内容を反映して閉じる」を押すとプレビューに即反映されます。「📥 JSONで書き出し」→私に送れば配布版HTMLを作成します。</p>';
+    el.innerHTML = h;
+    return;
+  }
+
+  if(editSubTab === 'customer'){
+    var cas = getCaseData(editCase);
+    var isCustomC = editedCases[editCase] !== undefined;
+    if(st){ st.textContent = isCustomC ? '✎ カスタム編集済み' : 'デフォルト'; st.className = 'edit-stat'+(isCustomC?' custom':''); }
+    var html = '<div class="edit-section"><div class="edit-section-title">📱 スマホ情報</div>';
+    cas.phones.forEach(function(p, j){
+      html += '<div class="edit-phone-block">'
+        + '<div class="edit-row">'
+        + '<div class="ef"><label>対象（誰）</label><input type="text" id="ec_who'+j+'" value="'+safeEnc(p.who)+'"></div>'
+        + '<div class="ef"><label>キャリア表示</label><input type="text" id="ec_label'+j+'" value="'+safeEnc(p.label)+'"></div>'
+        + '</div>'
+        + '<div class="edit-row">'
+        + '<div class="ef"><label>プラン名</label><input type="text" id="ec_plan'+j+'" value="'+safeEnc(p.plan)+'"></div>'
+        + '<div class="ef"><label>利用量</label><input type="text" id="ec_usage'+j+'" value="'+safeEnc(p.usage)+'"></div>'
+        + '<div class="ef"><label>月額料金</label><input type="text" id="ec_fee'+j+'" value="'+safeEnc(p.fee)+'"></div>'
+        + '</div>'
+        + '<div class="edit-row">'
+        + '<div class="ef" style="flex:2"><label>端末名・メモ</label><input type="text" id="ec_device'+j+'" value="'+safeEnc(p.device)+'"></div>'
+        + '<div class="ef"><label>端末代</label><input type="text" id="ec_dfee'+j+'" value="'+safeEnc(p.dfee)+'"></div>'
+        + '</div></div>';
+    });
+    html += '</div><div class="edit-section"><div class="edit-section-title">🌐 固定回線情報</div><div class="edit-phone-block">'
+      + '<div class="edit-row">'
+      + '<div class="ef"><label>回線名</label><input type="text" id="ec_net_name" value="'+safeEnc(cas.net.name)+'"></div>'
+      + '<div class="ef"><label>種別</label><input type="text" id="ec_net_type" value="'+safeEnc(cas.net.type)+'"></div>'
+      + '<div class="ef"><label>速度</label><input type="text" id="ec_net_speed" value="'+safeEnc(cas.net.speed)+'"></div>'
+      + '</div><div class="edit-row">'
+      + '<div class="ef"><label>月額料金</label><input type="text" id="ec_net_fee" value="'+safeEnc(cas.net.fee)+'"></div>'
+      + '<div class="ef"><label>固定電話</label><input type="text" id="ec_net_tel" value="'+safeEnc(cas.net.tel)+'"></div>'
+      + '<div class="ef"><label>テレビ</label><input type="text" id="ec_net_tv" value="'+safeEnc(cas.net.tv)+'"></div>'
+      + '</div><div class="edit-row">'
+      + '<div class="ef"><label>工事費</label><input type="text" id="ec_net_cost" value="'+safeEnc(cas.net.cost)+'"></div>'
+      + '<div class="ef" style="flex:2"><label>残債</label><input type="text" id="ec_net_debt" value="'+safeEnc(cas.net.debt)+'"></div>'
+      + '</div><div class="edit-row">'
+      + '<div class="ef" style="flex:1"><label>備考</label><input type="text" id="ec_net_note" value="'+safeEnc(cas.net.note)+'"></div>'
+      + '</div></div></div>'
+      + '<div class="edit-section"><div class="edit-section-title">🔒 特記・制約事項</div>'
+      + '<textarea class="edit-ta" id="ec_special" rows="5">'+safeEnc(cas.special)+'</textarea></div>'
+      + '<div class="edit-section"><div class="edit-section-title">📍 エリア検索結果</div>';
+    cas.area.forEach(function(a, k){
+      html += '<div class="edit-area-row">'
+        + '<input type="text" id="ec_area_label'+k+'" value="'+safeEnc(a[1])+'" style="flex:1.4">'
+        + '<select id="ec_area_val'+k+'">'
+        + '<option value="true"'+(a[0]===true?' selected':'')+'>○</option>'
+        + '<option value="false"'+(a[0]===false?' selected':'')+'>×</option>'
+        + '<option value="後日判定"'+(a[0]==='後日判定'?' selected':'')+'>後日判定</option>'
+        + '</select></div>';
+    });
+    html += '</div>'
+      + '<div class="edit-section"><div class="edit-section-title">🗒 過去の意思決定（メモ）</div>'
+      + '<textarea class="edit-ta" id="ec_decisionlog" rows="6" placeholder="例：2026/6 来店時、父はキャッシュバックより端末の新しさを優先したいと判断。光は維持で決定。">' + safeEnc(getDecisionLog(editCase)) + '</textarea>'
+      + '<p style="font-size:11px;color:var(--ink3);margin-top:6px">このお客様について過去にどう判断したか・次回の商談で引き継ぎたい経緯などを自由に書き溜められます。受講者画面にも「過去の意思決定」として表示されます。</p></div>'
+      + '<p style="font-size:11px;color:var(--ink3);margin-top:8px">スマホ情報・固定回線・特記事項・エリア検索結果は受講者画面の各カードに反映されます。</p>';
+    el.innerHTML = html;
+    return;
+  }
+
+  if(editSubTab === 'quiz'){
+    var quizArr = getQuizData(editCase);
+    var isCustomQ = editedQuiz !== null;
+    if(st){ st.textContent = isCustomQ ? '✎ カスタム編集済み' : 'デフォルト'; st.className = 'edit-stat'+(isCustomQ?' custom':''); }
+    var qhtml = '<p style="font-size:11px;color:var(--ink3);margin-bottom:10px">このケースの注意事項クイズを編集します。正解は○/×で選択してください。</p>';
+    quizArr.forEach(function(q, qi){
+      qhtml += '<div class="edit-quiz-block">'
+        + '<div class="edit-row"><div class="ef" style="flex:1"><label>Q'+(qi+1)+'. 問題文</label><textarea id="eq_q'+qi+'" rows="2">'+safeEnc(q.q)+'</textarea></div></div>'
+        + '<div class="edit-row">'
+        + '<div class="ef" style="max-width:120px"><label>正解</label><select id="eq_a'+qi+'"><option value="true"'+(q.a===true?' selected':'')+'>○</option><option value="false"'+(q.a===false?' selected':'')+'>×</option></select></div>'
+        + '<div class="ef" style="flex:2"><label>解説</label><input type="text" id="eq_exp'+qi+'" value="'+safeEnc(q.exp)+'"></div>'
+        + '</div>'
+        + '<button type="button" class="btn-tiny danger" onclick="removeQuizItem('+qi+')">この問題を削除</button>'
+        + '</div>';
+    });
+    qhtml += '<button type="button" class="btn-tiny" onclick="addQuizItem()" style="margin-top:4px">＋ 問題を追加</button>';
+    el.innerHTML = qhtml;
+    return;
+  }
+}
+
+function addAnsPattern(){
+  flushEditorValues();
+  var cas = getCaseData(editCase);
+  var cur_patterns = (editedAnsData[editCase]||{patterns:ANS_DATA[editCase].patterns.slice()}).patterns.slice();
+  cur_patterns.push({
+    title:'新しいパターン',
+    reason:'',
+    phones: cas.phones.map(function(){ return {plan:'',min:'',disc:'',saku:''}; }),
+    net:{plan:'',fee:'',how:'',saku:''},
+    points:''
+  });
+  if(!editedAnsData[editCase]) editedAnsData[editCase] = {};
+  editedAnsData[editCase].patterns = cur_patterns;
+  renderEditBody();
+}
+
+function removeAnsPattern(idx){
+  if(!confirm('このパターンを削除しますか？')) return;
+  flushEditorValues();
+  var cur_patterns = getAnsPatterns(editCase).slice();
+  cur_patterns.splice(idx, 1);
+  if(!editedAnsData[editCase]) editedAnsData[editCase] = {};
+  editedAnsData[editCase].patterns = cur_patterns;
+  renderEditBody();
+}
+
+function addQuizItem(){
+  flushEditorValues();
+  var qa = getQuizData(editCase).slice();
+  qa.push({q:'', a:true, exp:''});
+  editedQuiz[editCase] = qa;
+  renderEditBody();
+}
+function removeQuizItem(idx){
+  flushEditorValues();
+  var qa = getQuizData(editCase).slice();
+  qa.splice(idx, 1);
+  editedQuiz[editCase] = qa;
+  renderEditBody();
+}
+
+function safeEnc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function safeDec(s){ return s.replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>'); }
+
+function flushEditorValues(){
+  if(editSubTab === 'answer'){
+    var basePatterns = getAnsPatterns(editCase);
+    var cas = getCaseData(editCase);
+    var newPatterns = basePatterns.map(function(pat, pi){
+      var np = {
+        title: safeDec(val('ep_title'+pi)||pat.title),
+        reason: safeDec(val('ep_reason'+pi)||''),
+        phones: pat.phones.map(function(ph, j){
+          return {
+            plan: safeDec(val('ep_p'+pi+'_plan'+j)||''),
+            min:  safeDec(val('ep_p'+pi+'_min'+j)||''),
+            disc: safeDec(val('ep_p'+pi+'_disc'+j)||''),
+            saku: safeDec(val('ep_p'+pi+'_saku'+j)||'')
+          };
+        }),
+        net:{
+          plan: safeDec(val('ep_p'+pi+'_net_plan')||''),
+          fee:  safeDec(val('ep_p'+pi+'_net_fee')||''),
+          how:  safeDec(val('ep_p'+pi+'_net_how')||''),
+          saku: safeDec(val('ep_p'+pi+'_net_saku')||'')
+        },
+        points: safeDec(val('ep_p'+pi+'_points')||'')
+      };
+      return np;
+    });
+    if(!editedAnsData[editCase]) editedAnsData[editCase] = {patterns: newPatterns};
+    else editedAnsData[editCase].patterns = newPatterns;
+  } else if(editSubTab === 'customer'){
+    var base = getCaseData(editCase);
+    var newCas = JSON.parse(JSON.stringify(base));
+    newCas.phones.forEach(function(p, j){
+      var who = document.getElementById('ec_who'+j);
+      if(!who) return;
+      p.who = safeDec(who.value);
+      p.label = safeDec(document.getElementById('ec_label'+j).value);
+      p.plan = safeDec(document.getElementById('ec_plan'+j).value);
+      p.usage = safeDec(document.getElementById('ec_usage'+j).value);
+      p.fee = safeDec(document.getElementById('ec_fee'+j).value);
+      p.device = safeDec(document.getElementById('ec_device'+j).value);
+      p.dfee = safeDec(document.getElementById('ec_dfee'+j).value);
+    });
+    if(document.getElementById('ec_net_name')){
+      newCas.net.name = safeDec(document.getElementById('ec_net_name').value);
+      newCas.net.type = safeDec(document.getElementById('ec_net_type').value);
+      newCas.net.speed = safeDec(document.getElementById('ec_net_speed').value);
+      newCas.net.fee = safeDec(document.getElementById('ec_net_fee').value);
+      newCas.net.tel = safeDec(document.getElementById('ec_net_tel').value);
+      newCas.net.tv = safeDec(document.getElementById('ec_net_tv').value);
+      newCas.net.cost = safeDec(document.getElementById('ec_net_cost').value);
+      newCas.net.debt = safeDec(document.getElementById('ec_net_debt').value);
+      newCas.net.note = safeDec(document.getElementById('ec_net_note').value);
+    }
+    if(document.getElementById('ec_special')){
+      newCas.special = safeDec(document.getElementById('ec_special').value);
+    }
+    newCas.area.forEach(function(a, k){
+      var lbl = document.getElementById('ec_area_label'+k);
+      var val = document.getElementById('ec_area_val'+k);
+      if(!lbl || !val) return;
+      a[1] = safeDec(lbl.value);
+      a[0] = val.value === 'true' ? true : (val.value === 'false' ? false : val.value);
+    });
+    if(document.getElementById('ec_decisionlog')){
+      newCas.decisionLog = safeDec(document.getElementById('ec_decisionlog').value);
+    }
+    editedCases[editCase] = newCas;
+  } else if(editSubTab === 'quiz'){
+    var qa = getQuizData(editCase).slice();
+    qa = qa.map(function(q, qi){
+      var qEl = document.getElementById('eq_q'+qi);
+      if(!qEl) return q;
+      return {
+        q: safeDec(qEl.value),
+        a: document.getElementById('eq_a'+qi).value === 'true',
+        exp: safeDec(document.getElementById('eq_exp'+qi).value)
+      };
+    });
+    editedQuiz[editCase] = qa;
+  }
+}
+
+/* ============ 回答まとめ・FB ============ */
+function openReport(){
+  var jobs = CASES.map(function(_, i){ return loadCase(i); });
+  Promise.all(jobs).then(function(){
+    document.getElementById('reportBody').innerHTML = buildReportHTML();
+    document.getElementById('reportModal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  });
+}
+function closeReport(){
+  document.getElementById('reportModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function buildReportHTML(){
+  var totalCorrect = 0, totalCount = 0, touched = 0;
+  var marks = ['①','②','③'];
+  var caseHtml = '';
+
+  CASES.forEach(function(_cas0, i){
+    var cas = getCaseData(i);
+    var d = memCache[i];
+    if(!d || !d._touched) return;
+    touched++;
+
+    var rows = '';
+    cas.phones.forEach(function(p, j){
+      var b = d.blocks[j] || {};
+      var detail = [];
+      if(b.disc) detail.push('割引: ' + esc(b.disc));
+      if(b.callop && b.callop !== '（通話なし）') detail.push('通話OP: ' + esc(b.callop) + (b.callfee ? ' ' + b.callfee + '円' : ''));
+      if(b.card === 'つけない') detail.push('カード: つけない（' + (b.cardreason ? esc(b.cardreason) : '<span class="empty">理由未記入</span>') + '）');
+      else if(b.card && b.card.indexOf('PayPay') === 0) detail.push('カード: ' + esc(b.card) + (b.cardfee ? ' 割引' + b.cardfee + '円' : '') + (b.cardmob ? ' モバイル還元' + b.cardmob + '%' : '') + (b.cardhikari ? ' 光還元' + b.cardhikari + '%' : ''));
+      if(b.saku) detail.push('施策: ' + esc(b.saku));
+      if(b.mustop) detail.push('必須OP・注意: ' + esc(b.mustop));
+      rows += '<tr><td>' + marks[j] + ' ' + p.who + '</td>'
+        + '<td>' + (b.plan ? esc(b.plan) : '<span class="empty">未選択</span>') + '</td>'
+        + '<td>' + (b.base ? b.base + '円' : '<span class="empty">未入力</span>') + '</td>'
+        + '<td>' + (b.min ? b.min + '円' : '<span class="empty">未入力</span>') + '</td>'
+        + '<td>' + (detail.length ? detail.join('<br>') : '<span class="empty">—</span>') + '</td></tr>';
+    });
+
+    var nb = d.blocks[cas.phones.length] || {};
+    var netDetail = [];
+    if(nb.how && nb.how !== '（未選択）') netDetail.push('変更方法: ' + esc(nb.how));
+    if(nb.kouji && nb.kouji !== '（未選択）'){
+      var k = '工事: ' + esc(nb.kouji);
+      if(nb.kouji === '工事あり') k += nb.koujifee ? '（' + nb.koujifee + '円）' : '（<span class="empty">工事費未記入</span>）';
+      if(nb.kouji === '工事なし') k += nb.koujitype && nb.koujitype !== '（未選択）' ? '（' + esc(nb.koujitype) + '）' : '（<span class="empty">種別未選択</span>）';
+      netDetail.push(k);
+    }
+    if(nb.hoten && nb.hoten !== '（未選択）') netDetail.push('解約金補填: ' + esc(nb.hoten));
+    if(nb.sakusel && nb.sakusel !== '（未選択）'){
+      var s = '施策: ' + esc(nb.sakusel);
+      if(nb.sakusel === 'KD20' || nb.sakusel === 'KD30') s += nb.cbfee ? '（CB ' + nb.cbfee + '円）' : '（<span class="empty">CB未記入</span>）';
+      netDetail.push(s);
+    }
+    rows += '<tr><td>④ 固定回線</td>'
+      + '<td>' + (nb.plan ? esc(nb.plan) : '<span class="empty">未選択</span>') + '</td>'
+      + '<td>' + (nb.base ? nb.base + '円' : '<span class="empty">—</span>') + '</td>'
+      + '<td>' + (nb.min ? nb.min + '円' : '<span class="empty">未入力</span>') + '</td>'
+      + '<td>' + (netDetail.length ? netDetail.join('<br>') : '<span class="empty">—</span>') + '</td></tr>';
+
+    var fb = [];
+    // 光550円チェック
+    if(nb.plan && nb.plan.indexOf('SoftBank光') === 0){
+      var base = parseInt(nb.base, 10), min = parseInt(nb.min, 10);
+      if(!isNaN(base) && !isNaN(min)){
+        if(min === base + 550) fb.push('<span class="fb-ok">✓ 光の月額＝基本料金＋オプションパック550円 になっています</span>');
+        else fb.push('<span class="fb-ng">⚠ 光の月額が基本料金＋550円になっていません（基本' + base + '円なら月額' + (base+550) + '円のはず／入力は' + (isNaN(min)?'未入力':min+'円') + '）</span>');
+      } else if(!isNaN(base) && isNaN(min)){
+        fb.push('<span class="fb-ng">⚠ 光プラン選択時は月額料金（基本料金＋550円）の入力が必要です</span>');
+      }
+    }
+    // CB合計
+    if(d.cbtotal) fb.push('CB・還元合計の記入あり: <b>' + d.cbtotal + '円</b>');
+    else fb.push('<span class="fb-ng">⚠ CB・還元の合計金額が未記入です</span>');
+    // 未選択チェック
+    var unselected = [];
+    cas.phones.forEach(function(p, j){
+      var b = d.blocks[j] || {};
+      if(!b.plan || b.plan === '（未選択）') unselected.push(marks[j] + p.who);
+    });
+    if(!nb.plan || nb.plan === '（未選択）') unselected.push('④固定回線');
+    if(unselected.length) fb.push('<span class="fb-ng">⚠ プラン未選択: ' + unselected.join('、') + '</span>');
+
+    // クイズ
+    var quiz = d.quiz || [];
+    var correct = 0, answered = 0;
+    var quizLis = '';
+    var QZ = getQuizData(i);
+    QZ.forEach(function(q, qi){
+      var ansv = quiz[qi];
+      if(ansv === 'o' || ansv === 'x'){
+        answered++;
+        var isCorrect = (ansv === 'o') === q.a;
+        if(isCorrect){ correct++; totalCorrect++; }
+        totalCount++;
+        quizLis += '<li>Q' + (qi+1) + '. ' + q.q + ' → 回答: ' + (ansv==='o'?'○':'×') + ' '
+          + (isCorrect ? '<span class="fb-ok">○正解</span>' : '<span class="fb-ng">×不正解 — ' + q.exp + '</span>') + '</li>';
+      } else {
+        quizLis += '<li>Q' + (qi+1) + '. ' + q.q + ' → <span class="empty">未回答</span></li>';
+      }
+    });
+
+    caseHtml += '<div class="report-case">'
+      + '<h3>' + esc(cas.title) + '</h3>'
+      + '<table class="report-table"><tr><th></th><th>プラン・GB数</th><th>基本料金</th><th>最安値/基本料金</th><th>割引・施策・注意</th></tr>' + rows + '</table>'
+      + '<div class="report-reason"><b>提案理由メモ：</b>' + (d.reason ? esc(d.reason) : '<span class="empty">未記入</span>') + '</div>'
+      + '<div class="report-quiz"><b>注意事項クイズ：正答 ' + correct + ' / ' + answered + '（全' + QZ.length + '問）</b><ul>' + quizLis + '</ul></div>'
+      + '<div style="font-size:12px;margin-top:8px"><b>簡易チェック：</b><ul style="padding-left:18px;margin:6px 0">' + fb.map(function(x){ return '<li>' + x + '</li>'; }).join('') + '</ul></div>'
+      + '</div>';
+  });
+
+  if(touched === 0){
+    return '<div class="report-empty">まだ回答が入力されたケースがありません。各ケースで入力すると、ここにまとめが表示されます。</div>';
+  }
+
+  var summary = '<div class="report-summary"><h2>総合結果</h2><table>'
+    + '<tr><td>取り組んだケース</td><td><b>' + touched + ' / ' + CASES.length + '</b></td></tr>'
+    + '<tr><td>注意事項クイズ正答率</td><td><b>' + totalCorrect + ' / ' + totalCount + (totalCount ? '（' + Math.round(totalCorrect/totalCount*100) + '%）' : '') + '</b></td></tr>'
+    + '</table>'
+    + '</div>';
+
+  return summary + caseHtml;
+}
+
+function saveEdits(){
+  flushEditorValues();
+  closeEditor();
+  buildSidebar();
+  if(cur === editCase){
+    loadCase(cur).then(function(saved){ buildMain(saved); });
+  }
+}
+
+function exportEdits(){
+  flushEditorValues();
+  var payload = {
+    ansData: editedAnsData,
+    cases: editedCases,
+    quiz: editedQuiz,
+    exportedAt: new Date().toLocaleString('ja-JP')
+  };
+  var blob = new Blob([JSON.stringify(payload, null, 2)], {type: 'application/json'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = '乗り換えサイト編集データ.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function importEditsFile(input){
+  var file = input.files && input.files[0];
+  if(!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      var data = JSON.parse(e.target.result);
+      if(data.ansData) Object.assign(editedAnsData, data.ansData);
+      if(data.cases) Object.assign(editedCases, data.cases);
+      if(data.quiz) Object.assign(editedQuiz, data.quiz);
+      alert('編集データを読み込みました（' + (data.exportedAt||'') + ' 書き出し分）');
+      renderEditTabs();
+      renderEditBody();
+      buildSidebar();
+      if(cur >= 0) loadCase(cur).then(function(saved){ buildMain(saved); });
+    }catch(err){
+      alert('読み込みに失敗しました。正しいJSONファイルか確認してください。');
+    }
+  };
+  reader.readAsText(file);
+  input.value = '';
+}
+
+function resetEdit(){
+  if(editSubTab === 'answer'){
+    if(!confirm('このケースの解答パターンをデフォルトに戻しますか？')) return;
+    delete editedAnsData[editCase];
+  } else if(editSubTab === 'customer'){
+    if(!confirm('このケースの顧客設定をデフォルトに戻しますか？')) return;
+    delete editedCases[editCase];
+  } else if(editSubTab === 'quiz'){
+    if(!confirm('このケースの注意事項クイズをデフォルトに戻しますか？')) return;
+    delete editedQuiz[editCase];
+  }
+  renderEditBody();
+  renderEditTabs();
+}
+
+
+/* ============ 起動：保存データを順次読み込み ============ */
+function preloadAll(){
+  var jobs = CASES.map(function(_, i){ return loadCase(i); });
+  Promise.all(jobs).then(function(){
+    return storageOK ? loadAllEdits() : Promise.resolve();
+  }).then(function(){
+    buildSidebar();
+    selectCase(0);
+  });
+}
+preloadAll();
+</script>
+<div class="modal-overlay" id="reportModal">
+  <div class="modal-box" style="max-width:920px">
+    <div class="modal-head">
+      <h2>📋 回答まとめ・フィードバック</h2>
+      <div style="display:flex;gap:8px">
+        <button class="ghost" onclick="window.print()">🖨 印刷/PDF保存</button>
+        <button class="ghost" onclick="closeReport()">✕ 閉じる</button>
+      </div>
+    </div>
+    <div class="modal-body" id="reportBody"></div>
+  </div>
+</div>
+<div class="modal-overlay" id="editModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2>✏️ 模範解答の編集 <span style="font-size:11px;font-weight:400;color:var(--warn);background:#fff3cd;padding:2px 7px;border-radius:10px;margin-left:6px">⚠ 編集内容はこの画面上のみ。配布するにはJSONを書き出してください</span></h2>
+      <button class="ghost" onclick="closeEditor()">✕ 閉じる</button>
+    </div>
+    <div class="modal-tabs" id="editTabs"></div>
+    <div class="modal-tabs" id="editSubTabs" style="border-top:1px solid var(--line)"></div>
+    <div class="modal-body" id="editBody"></div>
+    <div class="modal-foot" style="flex-wrap:wrap">
+      <span class="edit-stat" id="editStat"></span>
+      <label class="ghost" style="cursor:pointer;display:inline-flex;align-items:center">📤 JSONを読み込み<input type="file" accept="application/json" style="display:none" onchange="importEditsFile(this)"></label>
+      <button class="ghost" onclick="exportEdits()">📥 編集データをJSONで書き出し</button>
+      <button class="ghost" onclick="resetEdit()">このケースをリセット</button>
+      <button class="act" onclick="saveEdits()">✓ この内容を反映して閉じる</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
